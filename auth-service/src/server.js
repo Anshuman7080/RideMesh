@@ -31,6 +31,12 @@ app.use(
 
 app.use(morgan("dev"));
 
+// app.use((req, res, next) => {
+//   console.log("AUTH SERVICE RECEIVED:", req.method, req.originalUrl);
+//   next();
+// });
+
+
 // Routes
 app.use("/api/v1/auth", authRoutes);
 

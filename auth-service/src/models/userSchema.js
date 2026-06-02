@@ -22,7 +22,6 @@ const userSchema=new mongoose.Schema({
     role:{
         type:String,
         enum:['rider','driver','admin'],
-        required:true,
         default:'rider'
     },
 

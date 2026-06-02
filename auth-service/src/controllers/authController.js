@@ -12,9 +12,9 @@ const { createRiderProfile } = require("../services/userService");
 
 const signUp = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -22,10 +22,12 @@ const signUp = async (req, res) => {
     }
 
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already present with this email. Try with a different email",
+        message:
+          "User already present with this email. Try with a different email",
       });
     }
 
@@ -35,14 +37,36 @@ const signUp = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role,
     });
 
-    // Create a rider profile
-    await createRiderProfile(newUser._id, newUser.name);
+  
+
+    try {
+      await createRiderProfile(
+        newUser._id.toString(),
+        newUser.name
+      );
+    } catch (error) {
+      console.log("Rider Profile Creation Failed:", error.message);
+
+
+      await User.findByIdAndDelete(newUser._id);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create rider profile",
+      });
+    }
+
+
 
     const otp = await generateOtp(newUser._id);
-    await Otp.create({ userId: newUser._id, otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+    await Otp.create({
+      userId: newUser._id,
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
 
     await mailSender(
       email,
@@ -50,13 +74,16 @@ const signUp = async (req, res) => {
       emailVerificationTemplate(otp)
     );
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       userDetail: newUser,
-      message: "USER CREATED SUCCESSFULLY. PLEASE CHECK YOUR EMAIL FOR VERIFICATION",
+      message:
+        "USER CREATED SUCCESSFULLY. PLEASE CHECK YOUR EMAIL FOR VERIFICATION",
     });
+
   } catch (error) {
     console.log("Error in signing up user", error);
+
     return res.status(500).json({
       success: false,
       message: error.message || "Internal Server Error",

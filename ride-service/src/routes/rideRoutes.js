@@ -5,7 +5,9 @@ const router = express.Router();
 const {
     createRide,
     getRideDetails,cancelRide,getDriverRequests,acceptRide,driverArrived,startRide,completeRide
-    ,rejectRide,driverCancelRide,rateDriver,rateRider
+    ,rejectRide,driverCancelRide,rateDriver,rateRider,updateDriverLocation,
+    setDriverOnline,setDriverOffline,
+    getOnlineDrivers
 } = require("../controllers/rideController");
 
 
@@ -36,6 +38,14 @@ router.patch("/:rideId/driver-cancel",driverCancelRide);
 router.post( "/:rideId/rate-driver",rateDriver);
 
 router.post("/:rideId/rate-rider",rateRider);
+
+router.patch( "/drivers/location",updateDriverLocation);
+
+router.patch("/drivers/online",setDriverOnline);
+
+router.patch("/drivers/offline",setDriverOffline);
+
+router.get("/drivers/online",getOnlineDrivers);
 
 
 module.exports = router;

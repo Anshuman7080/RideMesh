@@ -9,6 +9,11 @@ const morgan = require("morgan");
 const connectDB=require("./config/db");
 const rideRoutes =require("./routes/rideRoutes");
 
+const {
+    connectRedis
+} = require("./config/redis");
+
+console.log("Import Success");
 
 dotenv.config();
 
@@ -16,6 +21,14 @@ const PORT = process.env.PORT || 5004;
 
 // Database Connection
 connectDB();
+
+ connectRedis();
+
+// app.listen(PORT, () => {
+//     console.log(
+//         `Ride Service running on ${PORT}`
+//     );
+// });
 
 // Middlewares
 app.use(express.json());
@@ -61,3 +74,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Ride Service running on port ${PORT}`);
 });
+
+

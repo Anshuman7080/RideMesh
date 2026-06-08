@@ -7,6 +7,7 @@ const {updateDriverAvailability}=require("../clients/driverServiceClient")
 const { updateDriverRating } = require("../clients/driverServiceClient");
 const { updateRiderRating } = require("../clients/riderServiceClient");
 const {sendNotification}=require("../clients/notificationServiceClient")
+const { redisClient } =require("../config/redis");
 
 
 const createRide=async(req,res)=>{
@@ -863,6 +864,130 @@ const rateRider = async (req, res) => {
     }
 };
 
+const updateDriverLocation=async(req,res)=>{
+    try{
+
+        const driverId=req.headers['x-user-id'];
+
+        if(!driverId){
+            return res.status(401).json({
+                success:false,
+                message:"Unauthorized"
+            })
+        }
+
+        const {latitude,longitude}=req.body;
+
+        if(!latitude || ! longitude){
+            return res.status(400).json({
+                success:false,
+                message:"Latitude and Longitude required"
+            })
+        }
+
+        await redisClient.hSet(
+            `driver:${driverId}`,
+            {
+                latitude,
+                longitude,
+                updatedAt:Date.now()
+            }
+        )
+
+
+        return res.status(200).json({
+            success:true,
+            message:"Location updated"
+        })
+
+    }
+    catch(error){
+        console.log("error in updating driver location",error);
+
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        });
+    }
+}
+
+
+const setDriverOnline=async(req,res)=>{
+    try{
+
+        const driverId=req.headers['x-user-id'];
+           
+        if(!driverId){
+            return res.status(401).json({
+                success:false,
+                message:"Unauthorized"
+            })
+        }
+
+        await redisClient.sAdd("online-drivers",driverId);
+
+        return res.status(200).json({
+            success:true,
+            message:"Driver is online"
+        });
+
+    }
+    catch(error){
+        console.log("error in making driver online",error);
+
+        return res.status(500).json({
+            success:false,
+            message:error
+        })
+    }
+}
+
+const setDriverOffline=async(req,res)=>{
+    try{
+        const driverId=req.headers['x-user-id'];
+
+        await redisClient.sRem(
+            "online-drivers",
+            driverId
+        );
+
+        return res.status(200).json({
+            success:true,
+            message:"Driver is offline"
+        })
+
+    }catch(error){
+        console.log("error in making driver offline",error);
+
+        return res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
+
+const getOnlineDrivers=async(req,res)=>{
+    try{
+
+         const drivers=await redisClient.sMembers("online-drivers");
+
+         return res.status(200).json({
+            success:true,
+            drivers
+         })
+    }
+    catch(error){
+        console.log("Error in getting online drivers",error);
+
+        return res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
+
+
+
 module.exports = {
     createRide,
     getRideDetails,
@@ -875,5 +1000,9 @@ module.exports = {
     rejectRide,
     driverCancelRide,
     rateDriver,
-    rateRider
+    rateRider,
+    updateDriverLocation ,
+    setDriverOnline,
+    setDriverOffline,
+    getOnlineDrivers
 };

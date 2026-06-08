@@ -7,7 +7,7 @@ const {
     getRideDetails,cancelRide,getDriverRequests,acceptRide,driverArrived,startRide,completeRide
     ,rejectRide,driverCancelRide,rateDriver,rateRider,updateDriverLocation,
     setDriverOnline,setDriverOffline,
-    getOnlineDrivers
+    getOnlineDrivers,getNearbyDrivers
 } = require("../controllers/rideController");
 
 
@@ -47,5 +47,7 @@ router.patch("/drivers/offline",setDriverOffline);
 
 router.get("/drivers/online",getOnlineDrivers);
 
+
+router.get("/drivers/nearby",getNearbyDrivers );
 
 module.exports = router;

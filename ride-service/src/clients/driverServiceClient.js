@@ -1,5 +1,6 @@
 const axios = require("axios");
 
+// replaced with redis
 const getAvailableDrivers = async () => {
 
     const response = await axios.get(

@@ -10,69 +10,146 @@ const {sendNotification}=require("../clients/notificationServiceClient")
 const { redisClient } =require("../config/redis");
 
 
-const createRide=async(req,res)=>{
-    try{
-         const riderId=req.headers["x-user-id"]
-         console.log("riderId is",riderId);
+const createRide = async (req, res) => {
+    try {
 
-         if(!riderId){
+        const riderId = req.headers["x-user-id"];
+
+        if (!riderId) {
             return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        const {
+            pickup,
+            dropoff,
+            distanceKm
+        } = req.body;
+
+        if (!pickup || !dropoff || !distanceKm) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required"
+            });
+        }
+
+        const estimatedFare =
+            calculateFare(distanceKm);
+
+        const ride = await Ride.create({
+            riderId,
+            pickup,
+            dropoff,
+            distanceKm,
+            estimatedFare,
+            status: "REQUESTED"
+        });
+
+        const nearbyDrivers =
+            await redisClient.sendCommand([
+                "GEOSEARCH",
+                "drivers:geo",
+                "FROMLONLAT",
+                ride.pickup.longitude.toString(),
+                ride.pickup.latitude.toString(),
+                "BYRADIUS",
+                "5",
+                "km",
+                "WITHDIST"
+            ]);
+
+
+
+        const onlineDrivers =
+            await redisClient.sMembers(
+                "online-drivers"
+            );
+
+
+        const eligibleDrivers =
+            nearbyDrivers.filter(
+                ([driverId]) =>
+                    onlineDrivers.includes(
+                        driverId
+                    )
+            );
+
+
+        eligibleDrivers.sort(
+            (a, b) =>
+                Number(a[1]) -
+                Number(b[1])
+        );
+
+
+       if (eligibleDrivers.length === 0) {
+
+            await Ride.findByIdAndDelete(
+                ride._id
+            );
+
+            return res.status(404).json({
                 success:false,
-                message:"Unauthorized"
-            })
-         }
-              const {pickup,dropoff,distanceKm}=req.body;
+                message:
+                    "No nearby drivers available"
+            });
+}
 
-              if(!pickup || !dropoff || !distanceKm){
-                return res.status(400).json({
-                    success:false,
-                    message:"All fields are required"
+
+        const requests =
+            eligibleDrivers.map(
+                ([driverId]) => ({
+                    rideId: ride._id,
+                    driverId
                 })
-              }
+            );
+
+        await RideRequest.insertMany(
+            requests
+        );
 
 
-              const estimatedFare=calculateFare(distanceKm);
+        await RideStatusHistory.create({
+            rideId: ride._id,
+            status: "REQUESTED",
+            changedBy: "rider",
+            note: "Ride created"
+        });
 
-              const ride=await Ride.create({
-                riderId,pickup,dropoff,distanceKm,estimatedFare,
-                status:"REQUESTED"
-              });
+        return res.status(201).json({
+            success: true,
+            message:
+                "Ride created successfully",
+            ride,
 
+            nearbyDrivers:
+                eligibleDrivers.map(
+                    ([driverId, distance]) => ({
+                        driverId,
+                        distanceKm:
+                            Number(distance)
+                    })
+                )
+        });
 
-              const drivers =await getAvailableDrivers();
-              const requests = drivers.map(driver => ({
-                            rideId: ride._id,
-                            driverId: driver.userId
-                        }));
+    } catch (error) {
 
-              await RideRequest.insertMany(requests);
-
-              await RideStatusHistory.create({
-                rideId:ride._id,
-                status:"REQUESTED",
-                changedBy:"rider",
-                note:"Ride created"
-              })
-
-             return res.status(201).json({
-                success:true,
-                message:"Ride created successfully",
-                ride
-             })
-
-
-
-    }
-    catch(error){
-         console.log("Error creating ride", error);
+        console.log(
+            "Error creating ride",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            message: "Internal Server Error"
+            message:
+                "Internal Server Error"
         });
-
     }
-}
+};
+
+
 
 const getRideDetails = async (req, res) => {
 
@@ -245,113 +322,180 @@ const getDriverRequests = async (req, res) => {
 };
 
 
+const acceptRide = async (req, res) => {
 
-const acceptRide=async(req,res)=>{
-    try{
-        
-        const {rideId}=req.params;
-         if(!rideId){
-            return res.status(401).json({
-                success:false,
-                message:"ride Id missing"
-            })
-        }
+    let lockKey = null;
 
-        const driverId=req.headers['x-user-id']
+    try {
 
-        if(!driverId){
-            return res.status(401).json({
-                success:false,
-                message:"Driver Id missing"
-            })
-        }
+        const { rideId } = req.params;
 
-        const ride=await Ride.findById(rideId);
-
-
-        if(!ride){
-            return res.status(404).json({
-                success:false,
-                message:"Ride not found"
-            })
-        }
-
-        if(ride.status!=='REQUESTED'){
+        if (!rideId) {
             return res.status(400).json({
-                success:false,
-                message:`Ride is already ${ride.status}`
-            })
+                success: false,
+                message: "Ride Id missing"
+            });
         }
-         
 
-        const request=await RideRequest.findOne({
-            rideId,
-            driverId,
-            status:"PENDING"
-        });
+        const driverId =
+            req.headers["x-user-id"];
 
-        if(!request){
+        if (!driverId) {
+            return res.status(401).json({
+                success: false,
+                message: "Driver Id missing"
+            });
+        }
+
+        const ride =
+            await Ride.findById(rideId);
+
+        if (!ride) {
             return res.status(404).json({
-                success:false,
-                message:"No pending ride request found"
-            })
+                success: false,
+                message: "Ride not found"
+            });
         }
 
-        request.status='ACCEPTED';
-        request.respondedAt=new Date();
+        if (ride.status !== "REQUESTED") {
+            return res.status(400).json({
+                success: false,
+                message: `Ride is already ${ride.status}`
+            });
+        }
+
+        lockKey = `ride-lock:${rideId}`;
+
+        const lock =
+            await redisClient.set(
+                lockKey,
+                driverId,
+                {
+                    NX: true,
+                    EX: 30
+                }
+            );
+
+        if (!lock) {
+            return res.status(409).json({
+                success: false,
+                message:
+                    "Ride is being accepted by another driver"
+            });
+        }
+
+        const request =
+            await RideRequest.findOne({
+                rideId,
+                driverId,
+                status: "PENDING"
+            });
+
+        if (!request) {
+
+            await redisClient.del(lockKey);
+
+            return res.status(404).json({
+                success: false,
+                message:
+                    "No pending ride request found"
+            });
+        }
+
+        request.status = "ACCEPTED";
+        request.respondedAt =
+            new Date();
 
         await request.save();
 
-        ride.driverId=driverId;
-        ride.status='ACCEPTED';
-        ride.acceptedAt=new Date();
-        
+        ride.driverId = driverId;
+        ride.status = "ACCEPTED";
+        ride.acceptedAt =
+            new Date();
+
         await ride.save();
 
         await sendNotification({
-            userId:ride.riderId,
-            userRole:"rider",
-            rideId:ride._id,
-            type:"DRIVER_ASSIGNED",
-            title:"Driver Assigned",
-            message:"A driver has accepted your ride request"
-
+            userId: ride.riderId,
+            userRole: "rider",
+            rideId: ride._id,
+            type: "DRIVER_ASSIGNED",
+            title: "Driver Assigned",
+            message:
+                "A driver has accepted your ride request"
         });
 
+
         await updateDriverAvailability(
-                driverId,
-                false
-            );
+            driverId,
+            false
+        );
+
 
         await RideStatusHistory.create({
-            rideId:ride._id,
-            status:"ACCEPTED",
-            changedBy:"driver",
-            note:"Driver accepted ride"
-        })
+            rideId: ride._id,
+            status: "ACCEPTED",
+            changedBy: "driver",
+            note:
+                "Driver accepted ride"
+        });
 
-        await RideRequest.updateMany({
-            rideId,
-            _id:{$ne:request._id}
-        },{status:"REJECTED",respondedAt:new Date()})
-           
+        await RideRequest.updateMany(
+            {
+                rideId,
+                _id: {
+                    $ne: request._id
+                }
+            },
+            {
+                status: "EXPIRED",
+                respondedAt:
+                    new Date()
+            }
+        );
+
+        await redisClient.del(
+            lockKey
+        );
 
         return res.status(200).json({
-            success:true,
-            message:"Ride accepted successfully",
+            success: true,
+            message:
+                "Ride accepted successfully",
             ride
-        })
+        });
 
-    }
-    catch(error){
-        console.log("Error in accepting ride",error);
+    } catch (error) {
+
+        if (lockKey) {
+
+            try {
+
+                await redisClient.del(
+                    lockKey
+                );
+
+            } catch (err) {
+
+                console.log(
+                    "Lock cleanup error",
+                    err
+                );
+            }
+        }
+
+        console.log(
+            "Error in accepting ride",
+            error
+        );
 
         return res.status(500).json({
-            success:false,
-            error:error
-        })
+            success: false,
+            message:
+                "Internal Server Error"
+        });
     }
-}
+};
 
 
 const rejectRide = async (req, res) => {
@@ -894,6 +1038,14 @@ const updateDriverLocation=async(req,res)=>{
             }
         )
 
+        await redisClient.geoAdd(
+            "drivers:geo",
+            {
+                longitude: Number(longitude),
+                latitude: Number(latitude),
+                member: driverId
+            }
+        );
 
         return res.status(200).json({
             success:true,
@@ -987,6 +1139,40 @@ const getOnlineDrivers=async(req,res)=>{
 }
 
 
+const getNearbyDrivers=async(req,res)=>{
+    try{
+
+        const {latitude,longitude}=req.query;
+
+     const nearbyDrivers =
+    await redisClient.sendCommand([
+        "GEOSEARCH",
+        "drivers:geo",
+        "FROMLONLAT",
+        longitude,
+        latitude,
+        "BYRADIUS",
+        "5",
+        "km",
+        "WITHDIST"
+    ]);
+
+        return res.status(200).json({
+            success:true,
+            drivers:nearbyDrivers
+        })
+
+    }
+    catch(error){
+        console.log("error in getting nearby drivers",error);
+
+        return res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
+
 
 module.exports = {
     createRide,
@@ -1004,5 +1190,6 @@ module.exports = {
     updateDriverLocation ,
     setDriverOnline,
     setDriverOffline,
-    getOnlineDrivers
+    getOnlineDrivers,
+    getNearbyDrivers
 };

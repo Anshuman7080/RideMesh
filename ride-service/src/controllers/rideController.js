@@ -8,7 +8,7 @@ const { updateDriverRating } = require("../clients/driverServiceClient");
 const { updateRiderRating } = require("../clients/riderServiceClient");
 const {sendNotification}=require("../clients/notificationServiceClient")
 const { redisClient } =require("../config/redis");
-
+const {getIO}=require("../sockets/socket");
 
 const createRide = async (req, res) => {
     try {
@@ -110,6 +110,25 @@ const createRide = async (req, res) => {
             requests
         );
 
+        const io=getIO();
+
+        for(const [driverId,distance] of eligibleDrivers){
+            io.to(
+                `driver:${driverId}`
+            ).emit(
+                "new-ride-request",
+                {
+                    rideId:ride._id,
+                    riderId,
+                    pickup,
+                    dropoff,
+                    estimatedFare,
+                    distanceKm
+                }
+            )
+        }
+
+
 
         await RideStatusHistory.create({
             rideId: ride._id,
@@ -148,7 +167,6 @@ const createRide = async (req, res) => {
         });
     }
 };
-
 
 
 const getRideDetails = async (req, res) => {
@@ -414,6 +432,20 @@ const acceptRide = async (req, res) => {
             new Date();
 
         await ride.save();
+
+        const io=getIO();
+        
+        io.to(
+            `rider:${ride.riderId}`
+        ).emit(
+            "ride-accepted",
+            {
+                rideId:ride._id,
+                driverId,
+                status:"ACCEPTED"
+            }
+        )
+
 
         await sendNotification({
             userId: ride.riderId,

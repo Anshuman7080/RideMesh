@@ -1,5 +1,4 @@
 const express = require("express");
-const app = express();
 
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
@@ -8,6 +7,14 @@ const morgan = require("morgan");
 
 const connectDB=require("./config/db");
 const rideRoutes =require("./routes/rideRoutes");
+
+const http=require("http");
+
+const {initializeSocket}=require("./sockets/socket");
+
+const app = express();
+
+const server = http.createServer(app);
 
 const {
     connectRedis
@@ -22,7 +29,9 @@ const PORT = process.env.PORT || 5004;
 // Database Connection
 connectDB();
 
- connectRedis();
+connectRedis();
+
+initializeSocket(server);
 
 // app.listen(PORT, () => {
 //     console.log(
@@ -71,8 +80,13 @@ app.get("/", (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Ride Service running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Ride Service running on port ${PORT}`);
+// });
 
+server.listen(PORT, () => {
+    console.log(
+        `Ride Service running on port ${PORT}`
+    );
+});
 

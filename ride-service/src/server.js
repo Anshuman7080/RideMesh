@@ -12,6 +12,8 @@ const http=require("http");
 
 const {initializeSocket}=require("./sockets/socket");
 
+const {connectRabbitMQ}=require("./config/rabbitmq");
+
 const app = express();
 
 const server = http.createServer(app);
@@ -27,11 +29,23 @@ dotenv.config();
 const PORT = process.env.PORT || 5004;
 
 // Database Connection
-connectDB();
+// connectDB();
 
-connectRedis();
+// connectRedis();
 
-initializeSocket(server);
+// initializeSocket(server);
+
+// connectRabbitMQ();
+
+async function startServer() {
+    await connectDB();
+    await connectRedis();
+    await connectRabbitMQ();
+
+    initializeSocket(server);
+}
+
+startServer();
 
 // app.listen(PORT, () => {
 //     console.log(

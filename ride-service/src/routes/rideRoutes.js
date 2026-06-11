@@ -10,6 +10,23 @@ const {
     getOnlineDrivers,getNearbyDrivers
 } = require("../controllers/rideController");
 
+const {publishEvent}=require("../utils/eventBus");
+
+
+router.get("/test-rabbit", async (req, res) => {
+    try {
+        await publishEvent("ride.created", {
+            rideId: "ride_123",
+            userId: "user_1",
+            status: "requested"
+        });
+
+        res.json({ message: "Message sent to RabbitMq" });
+    } catch (error) {
+        console.log("Error in router file for testing rabbitMQ", error);
+        res.status(500).json({ error: "Failed to send message" });
+    }
+});
 
 router.post("/create", createRide);
 
@@ -49,5 +66,11 @@ router.get("/drivers/online",getOnlineDrivers);
 
 
 router.get("/drivers/nearby",getNearbyDrivers );
+
+
+
+
+
+
 
 module.exports = router;

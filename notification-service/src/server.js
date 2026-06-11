@@ -9,7 +9,8 @@ const morgan = require("morgan");
 const connectDB=require("./config/db");
 
 const notificationRoutes = require("./routes/notificationRoutes");
-
+const {connectRabbitMQ}=require("./config/rabbitmq");
+const {consumeEvents}=require("./consumer/consumer")
 dotenv.config();
 
 const PORT = process.env.PORT || 5002;
@@ -21,6 +22,14 @@ connectDB();
 app.use(express.json());
 
 app.use(cookieParser());
+
+
+async function startWorker(){
+  await connectRabbitMQ();
+  await consumeEvents();
+
+}
+startWorker();
 
 app.use(
   cors({

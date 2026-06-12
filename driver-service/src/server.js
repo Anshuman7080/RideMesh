@@ -10,13 +10,31 @@ const connectDB=require("./config/db");
 
 const  driverRoutes=require("./routes/driverRoutes")
 
+const { connectRabbitMQ} = require("./config/rabbitmq");
+
+const {  consumeDriverEvents} = require("./consumer/consumer");
+
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5003;
 
 // Database Connection
-connectDB();
+// connectDB();
+
+// await connectRabbitMQ();
+
+// await consumeDriverEvents();
+
+
+async function startWorker(){
+ 
+  await connectDB();
+  await connectRabbitMQ();
+  await consumeDriverEvents();
+
+}
+startWorker();
 
 // Middlewares
 app.use(express.json());

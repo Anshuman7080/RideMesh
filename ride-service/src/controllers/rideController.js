@@ -2,14 +2,15 @@ const Ride=require("../models/rideSchema");
 const RideStatusHistory=require("../models/rideStatusHistorySchema");
 const RideRequest=require("../models/rideRequestSchema")
 const {calculateFare}=require("../utils/fareCalculator");
-const {getAvailableDrivers}=require("../clients/driverServiceClient")
-const {updateDriverAvailability}=require("../clients/driverServiceClient")
-const { updateDriverRating } = require("../clients/driverServiceClient");
-const { updateRiderRating } = require("../clients/riderServiceClient");
-const {sendNotification}=require("../clients/notificationServiceClient")
+// const {getAvailableDrivers}=require("../clients/driverServiceClient")
+// const {updateDriverAvailability}=require("../clients/driverServiceClient")
+// const { updateDriverRating } = require("../clients/driverServiceClient");
+// const { updateRiderRating } = require("../clients/riderServiceClient");
+// const {sendNotification}=require("../clients/notificationServiceClient")
+
 const { redisClient } =require("../config/redis");
 
-const {publishEvent}=require("../utils/eventBus");
+const {publishEvent}=require("../utils/eventBus");``
 
 
 const createRide = async (req, res) => {
@@ -37,8 +38,7 @@ const createRide = async (req, res) => {
             });
         }
 
-        const estimatedFare =
-            calculateFare(distanceKm);
+        const estimatedFare =calculateFare(distanceKm);
 
         const ride = await Ride.create({
             riderId,
@@ -49,8 +49,7 @@ const createRide = async (req, res) => {
             status: "REQUESTED"
         });
 
-        const nearbyDrivers =
-            await redisClient.sendCommand([
+        const nearbyDrivers =await redisClient.sendCommand([
                 "GEOSEARCH",
                 "drivers:geo",
                 "FROMLONLAT",
@@ -121,9 +120,6 @@ const createRide = async (req, res) => {
                 distanceKm,
                 drivers: eligibleDrivers.map(([driverId]) => driverId)
             });
-
-       
-
 
 
         await RideStatusHistory.create({
@@ -203,6 +199,8 @@ const getRideDetails = async (req, res) => {
     }
 };
 
+
+
 const cancelRide = async (req, res) => {
 
     try {
@@ -274,14 +272,17 @@ const cancelRide = async (req, res) => {
                 }
         );
 
-        await sendNotification({
-            userId: ride.riderId,
-            userRole: "rider",
-            rideId: ride._id,
-            type: "RIDE_CANCELLED",
-            title: "Ride Cancelled",
-            message: reason || "Ride was cancelled"
-        });
+
+        // publishEvent("ride.cancelledByRider",
+        //     {
+        //     riderId: ride.driverId,
+        //     userRole: "rider",
+        //     rideId: ride._id,
+        //     type: "RIDE_CANCELLED",
+        //     title: "Ride Cancelled",
+        //     message: reason || "Ride was cancelled"
+        //     }
+        // )
 
         await RideStatusHistory.create({
             rideId: ride._id,
@@ -447,20 +448,12 @@ const acceptRide = async (req, res) => {
         })
 
 
-        await sendNotification({
-            userId: ride.riderId,
-            userRole: "rider",
-            rideId: ride._id,
-            type: "DRIVER_ASSIGNED",
-            title: "Driver Assigned",
-            message:
-                "A driver has accepted your ride request"
-        });
-
-
-        await updateDriverAvailability(
-            driverId,
-            false
+        publishEvent(
+            "driver.availability.updated",
+            {
+                driverId,
+                isAvailable:false
+            }
         );
 
 
@@ -622,15 +615,6 @@ const driverArrived = async (req, res) => {
 
         await ride.save();
 
-        await sendNotification({
-            userId: ride.riderId,
-            userRole: "rider",
-            rideId: ride._id,
-            type: "DRIVER_ARRIVED",
-            title: "Driver Arrived",
-            message: "Your driver has arrived"
-        });
-
         await RideStatusHistory.create({
             rideId: ride._id,
             status: "DRIVER_ARRIVED",
@@ -646,6 +630,7 @@ const driverArrived = async (req, res) => {
                 status:"DRIVER_ARRIVED"
             }
         )
+
 
         return res.status(200).json({
             success: true,
@@ -708,15 +693,7 @@ const startRide = async (req, res) => {
 
         await ride.save();
 
-        await sendNotification({
-            userId: ride.riderId,
-            userRole: "rider",
-            rideId: ride._id,
-            type: "RIDE_STARTED",
-            title: "Ride Started",
-            message: "Your ride has started"
-        });
-
+        
         await RideStatusHistory.create({
             rideId: ride._id,
             status: "IN_PROGRESS",
@@ -734,6 +711,8 @@ const startRide = async (req, res) => {
                 status:"IN_PROGRESS"
             }
         )
+
+
 
         return res.status(200).json({
             success: true,
@@ -790,19 +769,14 @@ const completeRide = async (req, res) => {
         ride.finalFare = ride.estimatedFare;
 
         await ride.save();
-        
-        await sendNotification({
-            userId: ride.riderId,
-            userRole: "rider",
-            rideId: ride._id,
-            type: "RIDE_COMPLETED",
-            title: "Ride Completed",
-            message: "Thank you for riding with us"
-        });
 
-        await updateDriverAvailability(
-                driverId,
-                true
+
+           publishEvent(
+                "driver.availability.updated",
+                {
+                    driverId,
+                    isAvailable:true
+                }
             );
 
         await RideStatusHistory.create({
@@ -824,6 +798,7 @@ const completeRide = async (req, res) => {
             }
          )
 
+        
         return res.status(200).json({
             success: true,
             message: "Ride completed successfully",
@@ -908,6 +883,7 @@ const driverCancelRide = async (req, res) => {
             }
         )
 
+
         await RideStatusHistory.create({
             rideId: ride._id,
             status: "CANCELLED",
@@ -916,9 +892,13 @@ const driverCancelRide = async (req, res) => {
         });
 
         // Driver becomes available again
-        await updateDriverAvailability(
-            driverId,
-            true
+
+        publishEvent(
+            "driver.availability.updated",
+            {
+                driverId,
+                isAvailable:true
+            }
         );
 
         return res.status(200).json({
@@ -991,9 +971,12 @@ const rateDriver = async (req, res) => {
 
         await ride.save();
 
-        await updateDriverRating(
-            ride.driverId,
-            rating
+        publishEvent(
+            "driver.rating.updated",
+            {
+                driverId:ride.driverId,
+                rating
+            }
         );
 
         return res.status(200).json({
@@ -1066,11 +1049,15 @@ const rateRider = async (req, res) => {
 
         await ride.save();
 
-        await updateRiderRating(
-            ride.riderId,
-            rating
-        );
 
+        publishEvent(
+            "rider.rating.updated",
+            {
+                riderId:ride.riderId,
+                rating
+            }
+        );
+        
         return res.status(200).json({
             success: true,
             message: "Rider rated successfully"

@@ -1,6 +1,6 @@
 const io = require("socket.io-client");
 
-const socket = io("http://localhost:5004");
+const socket = io("http://localhost:5005");
 
 socket.on("connect", () => {
 
@@ -17,6 +17,7 @@ socket.on("connect", () => {
     );
 });
 
+
 socket.on(
     "ride-accepted",
     (data) => {
@@ -31,7 +32,7 @@ socket.on(
 
 
 socket.on(
-    "driver-arrived",
+    "driver_arrived",
     (data)=>{
         console.log(data);
     }
@@ -52,7 +53,7 @@ socket.on(
 );
 
 socket.on(
-    "ride-cancelled",
+    "cancelled-by-driver",
     (data) => {
 
         console.log(

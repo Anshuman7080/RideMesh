@@ -1,8 +1,9 @@
-const Ride=require("../models/rideSchema");
 
 const {redisClient}=require("../config/redis");
 
 const { Server } = require("socket.io");
+
+
 
 let io;
 
@@ -75,19 +76,15 @@ const initializeSocket = (server) => {
                 }
             );
                
-                const ride=await Ride.findById(
-                    rideId
-                );
+            if (!ride || !ride.riderId) {
+                console.log("no ride found or invalid ride data");
+                return;
+            }
 
-                if(!ride){
-
-                    console.log("no ride found");
-                    return
-                }
-
+                const riderSocketRoom = `rider:${ride.riderId}`;
                 // console.log("riderID",ride.riderId)
 
-                io.to(`rider:${ride.riderId}`)
+                io.to(riderSocketRoom)
                 .emit(
                     "driver-location-updated",
                     {
@@ -120,6 +117,8 @@ const initializeSocket = (server) => {
         );
     });
 };
+
+
 
 const getIO = () => {
 

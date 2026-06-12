@@ -8,9 +8,8 @@ const { updateDriverRating } = require("../clients/driverServiceClient");
 const { updateRiderRating } = require("../clients/riderServiceClient");
 const {sendNotification}=require("../clients/notificationServiceClient")
 const { redisClient } =require("../config/redis");
-const {getIO}=require("../sockets/socket");
 
-
+const {publishEvent}=require("../utils/eventBus");
 
 
 const createRide = async (req, res) => {
@@ -58,7 +57,7 @@ const createRide = async (req, res) => {
                 ride.pickup.longitude.toString(),
                 ride.pickup.latitude.toString(),
                 "BYRADIUS",
-                "5",
+                "10",
                 "km",
                 "WITHDIST"
             ]);
@@ -113,23 +112,17 @@ const createRide = async (req, res) => {
             requests
         );
 
-        const io=getIO();
+         await publishEvent("ride.created", {
+                rideId: ride._id,
+                riderId,
+                pickup,
+                dropoff,
+                estimatedFare,
+                distanceKm,
+                drivers: eligibleDrivers.map(([driverId]) => driverId)
+            });
 
-        for(const [driverId,distance] of eligibleDrivers){
-            io.to(
-                `driver:${driverId}`
-            ).emit(
-                "new-ride-request",
-                {
-                    rideId:ride._id,
-                    riderId,
-                    pickup,
-                    dropoff,
-                    estimatedFare,
-                    distanceKm
-                }
-            )
-        }
+       
 
 
 
@@ -273,17 +266,13 @@ const cancelRide = async (req, res) => {
 
         await ride.save();
 
-        const io=getIO();
-
-        io.to(`driver:${ride.driverId}`).
-        emit(
-            "ride-cancelled",
-            {
-                rideId,
-                cancelledBy:"rider",
-                reason:ride.cancellationReason
-            }
-        )
+         await RideRequest.updateMany(
+                { rideId },
+                {
+                    status: "CANCELLED",
+                    cancelledAt: new Date()
+                }
+        );
 
         await sendNotification({
             userId: ride.riderId,
@@ -448,18 +437,14 @@ const acceptRide = async (req, res) => {
 
         await ride.save();
 
-        const io=getIO();
-        
-        io.to(
-            `rider:${ride.riderId}`
-        ).emit(
-            "ride-accepted",
-            {
-                rideId:ride._id,
-                driverId,
-                status:"ACCEPTED"
-            }
-        )
+       
+
+         publishEvent("ride.accepted",{
+            riderId:ride.riderId,
+            rideId:ride._id,
+            driverId,
+            status:"ACCEPTED"
+        })
 
 
         await sendNotification({
@@ -593,6 +578,8 @@ const rejectRide = async (req, res) => {
     }
 };
 
+
+
 const driverArrived = async (req, res) => {
     try {
 
@@ -652,10 +639,9 @@ const driverArrived = async (req, res) => {
         });
 
 
-        const io=getIo();
-        io.to(`rider:${ride.riderId}`).
-        emit("driver-arrived",
+        publishEvent("driver.arrived",
             {
+                riderId:ride.riderId,
                 rideId,
                 status:"DRIVER_ARRIVED"
             }
@@ -739,13 +725,11 @@ const startRide = async (req, res) => {
         });
 
 
-        const io=getIO();
+    
 
-        io.to(
-            `rider:${ride.riderId}`
-        ).emit(
-            "ride-started",
+        publishEvent("ride.started",
             {
+                riderId:ride.riderId,
                 rideId,
                 status:"IN_PROGRESS"
             }
@@ -766,6 +750,7 @@ const startRide = async (req, res) => {
         });
     }
 };
+
 
 const completeRide = async (req, res) => {
 
@@ -827,15 +812,15 @@ const completeRide = async (req, res) => {
             note: "Ride completed"
         });
         
-         const io=getIO();
+
          
-         io.to(
-            `rider:${ride.riderId}`
-         ).emit(
-            "ride-completed",
+         
+         publishEvent("ride.completed",
             {
+                riderId:ride.riderId,
                 rideId,
-                finalFare:ride.finalFare
+                finalFare:ride.finalFare,
+                status:"RIDE_COMPLETED"
             }
          )
 
@@ -911,19 +896,17 @@ const driverCancelRide = async (req, res) => {
 
         await ride.save();
 
-        const io = getIO();
+        
 
-        io.to(
-            `rider:${ride.riderId}`
-        ).emit(
-            "ride-cancelled",
+        publishEvent("ride.cancelled",
             {
+                riderId:ride.riderId,
                 rideId,
-                cancelledBy: "driver",
-                reason:
-                    ride.cancellationReason
+                cancelledBy:"Driver",
+                reason:ride.cancellationReason,
+                status:"RIDE_CANCELLED"
             }
-        );
+        )
 
         await RideStatusHistory.create({
             rideId: ride._id,

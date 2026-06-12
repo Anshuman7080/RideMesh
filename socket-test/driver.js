@@ -1,6 +1,6 @@
 const io=require("socket.io-client");
 
-const socket=io("http://localhost:5004");
+const socket=io("http://localhost:5005");
 
 socket.on("connect",()=>{
     console.log("Connected to Server");
@@ -8,7 +8,7 @@ socket.on("connect",()=>{
     socket.emit(
         "join-room",
         {
-            userId:"6a24dad15a67ba935b3a4f36",
+            userId:"6a2645ef2f7858c4998a3ccb",
             role:"driver"
         }
     )
@@ -19,16 +19,18 @@ socket.on("connect",()=>{
             console.log("Message from server",data);
         }
     )
-    socket.on(
+   
+
+})
+
+
+ socket.on(
         "new-ride-request",
         (data)=>{
             console.log("New Ride Request");
             console.log(data);
         }
     )
-
-})
-
 
 socket.on(
     "ride-cancelled",
@@ -43,14 +45,14 @@ socket.on(
 );
 
 
-setInterval(()=>{
-    socket.emit(
-        "location-update",
-        {
-            rideId:"6a2648ce4a5f2b2df1fbec44",
-            latitude:25.3176,
-            longitude:82.9739
+// setInterval(()=>{
+//     socket.emit(
+//         "location-update",
+//         {
+//             rideId:"6a2648ce4a5f2b2df1fbec44",
+//             latitude:25.3176,
+//             longitude:82.9739
 
-        }
-    )
-},5000);
+//         }
+//     )
+// },5000);

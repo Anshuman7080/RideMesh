@@ -11,12 +11,19 @@ const connectDB=require("./config/db");
 const notificationRoutes = require("./routes/notificationRoutes");
 const {connectRabbitMQ}=require("./config/rabbitmq");
 const {consumeEvents}=require("./consumer/consumer")
+const http = require("http");
+const {  initializeSocket} = require("./sockets/socket");
+
+const { connectRedis} = require("./config/redis");
+
 dotenv.config();
+
+const server =http.createServer(app);
+
+initializeSocket(server);
 
 const PORT = process.env.PORT || 5002;
 
-// Database Connection
-connectDB();
 
 // Middlewares
 app.use(express.json());
@@ -25,6 +32,9 @@ app.use(cookieParser());
 
 
 async function startWorker(){
+ 
+  await connectDB();
+  await connectRedis();
   await connectRabbitMQ();
   await consumeEvents();
 
@@ -67,6 +77,8 @@ app.get("/", (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Notification Service running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(
+        `Notification Service running on ${PORT}`
+    );
 });

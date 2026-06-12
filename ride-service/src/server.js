@@ -8,15 +8,9 @@ const morgan = require("morgan");
 const connectDB=require("./config/db");
 const rideRoutes =require("./routes/rideRoutes");
 
-const http=require("http");
-
-const {initializeSocket}=require("./sockets/socket");
-
 const {connectRabbitMQ}=require("./config/rabbitmq");
 
 const app = express();
-
-const server = http.createServer(app);
 
 const {
     connectRedis
@@ -42,7 +36,6 @@ async function startServer() {
     await connectRedis();
     await connectRabbitMQ();
 
-    initializeSocket(server);
 }
 
 startServer();
@@ -94,13 +87,9 @@ app.get("/", (req, res) => {
 });
 
 // Start Server
-// app.listen(PORT, () => {
-//   console.log(`Ride Service running on port ${PORT}`);
-// });
-
-server.listen(PORT, () => {
-    console.log(
-        `Ride Service running on port ${PORT}`
-    );
+app.listen(PORT, () => {
+  console.log(`Ride Service running on port ${PORT}`);
 });
+
+
 

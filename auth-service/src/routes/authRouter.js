@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const {signUp,login,verifyEmail,updateUserRole}=require("../controllers/authController")
+const {sendOtp,verifyOtp,resendOtp,login,updateUserRole}=require("../controllers/authController")
 
 
-
-router.post("/signup",signUp);
-router.post("/login",login);
-router.post("/verify-email",verifyEmail)
+router.post('/send-otp', sendOtp)
+router.post('/verify-otp', verifyOtp)
+router.post('/resend-otp', resendOtp)
+router.post('/login', login)
 router.patch("/internal/update-role",updateUserRole);
 
 module.exports=router;

@@ -12,6 +12,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const {connectRabbitMQ}=require("./config/rabbitmq");
 const {consumeEvents}=require("./consumer/consumer")
 const {consumePaymentEvents}=require("./consumer/paymentConsumer");
+const {consumeAuthEvents}=require("./consumer/authConsumer");
 const http = require("http");
 
 const {  initializeSocket} = require("./sockets/socket");
@@ -39,6 +40,7 @@ async function startWorker(){
   await connectRabbitMQ();
   await consumeEvents();
   await consumePaymentEvents();
+  await consumeAuthEvents();
 
 }
 startWorker();

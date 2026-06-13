@@ -7,7 +7,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const connectDB=require("./config/db");
-
+const {connectRabbitMQ}=require("./config/rabbitmq");
+const {connectRedis}=require("./config/redis");
 const authRoutes = require("./routes/authRouter");
 
 dotenv.config();
@@ -15,7 +16,15 @@ dotenv.config();
 const PORT = process.env.PORT || 5001;
 
 // Database Connection
-connectDB();
+
+
+async function startServer() {
+    await connectDB();
+    await connectRedis();
+    await connectRabbitMQ();
+}
+
+startServer();
 
 // Middlewares
 app.use(express.json());

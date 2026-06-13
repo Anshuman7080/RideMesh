@@ -11,7 +11,9 @@ const connectDB=require("./config/db");
 const notificationRoutes = require("./routes/notificationRoutes");
 const {connectRabbitMQ}=require("./config/rabbitmq");
 const {consumeEvents}=require("./consumer/consumer")
+const {consumePaymentEvents}=require("./consumer/paymentConsumer");
 const http = require("http");
+
 const {  initializeSocket} = require("./sockets/socket");
 
 const { connectRedis} = require("./config/redis");
@@ -32,11 +34,11 @@ app.use(cookieParser());
 
 
 async function startWorker(){
- 
   await connectDB();
   await connectRedis();
   await connectRabbitMQ();
   await consumeEvents();
+  await consumePaymentEvents();
 
 }
 startWorker();

@@ -10,7 +10,7 @@ const {calculateFare}=require("../utils/fareCalculator");
 
 const { redisClient } =require("../config/redis");
 
-const {publishEvent}=require("../utils/eventBus");``
+const {publishEvent}=require("../utils/eventBus");
 
 
 const createRide = async (req, res) => {
@@ -768,7 +768,14 @@ const completeRide = async (req, res) => {
        
         ride.finalFare = ride.estimatedFare;
 
+         await redisClient.set(
+                    `ride:${rideId}`,
+                    JSON.stringify({ riderId:ride.riderId, fare:ride.estimatedFare,status: 'COMPLETED' }),
+                    'EX', 86400
+                )
+
         await ride.save();
+
 
 
            publishEvent(
@@ -778,6 +785,8 @@ const completeRide = async (req, res) => {
                     isAvailable:true
                 }
             );
+
+           
 
         await RideStatusHistory.create({
             rideId: ride._id,

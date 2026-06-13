@@ -44,6 +44,18 @@ socket.on(
     }
 );
 
+socket.on(
+    "payment-successfull",
+    (data) => {
+
+        console.log(
+            "Ride Cancelled"
+        );
+
+        console.log(data);
+    }
+);
+
 
 // setInterval(()=>{
 //     socket.emit(

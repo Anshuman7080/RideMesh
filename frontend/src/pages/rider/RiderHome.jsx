@@ -20,7 +20,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl:markerShadow,
 });
 
-const changeMapView=({center})=>{
+const ChangeMapView=({center})=>{
     const map=useMap();
     useEffect(()=>{
         if(center){
@@ -74,7 +74,7 @@ const renderPanelContent = () => (
    
       <div>
         <h2 className="text-xl font-extrabold text-primary tracking-tight font-sans">
-          Welcome back, {user.name}!
+          Welcome back, {user?.name || "Rider"}!
         </h2>
         <p className="text-xs text-primary-darkgray mt-1">Where are we heading today?</p>
       </div>

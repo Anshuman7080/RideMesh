@@ -8,8 +8,16 @@ import Login from "./pages/auth/Login"
 import Signup from "./pages/auth/Signup"
 import VerifyOtp from "./pages/auth/VerifyOtp"
 import Splash from './pages/Splash';
-import {logout} from "./services/operations/authAPI"
+import {logoutUser} from "./services/operations/authAPI"
 import { getMyNotifications } from './services/operations/notificationAPI';
+import RiderHome from './pages/rider/RiderHome';
+import SetLocation from "./pages/rider/SetLocation"
+import RideOptions from "./pages/rider/RideOptions";
+import Searching from './pages/rider/Searching';
+import LiveTracking from './pages/rider/LiveTracking';
+import Completed from './pages/rider/Completed';
+import PaymentFailure from './pages/rider/PaymentFailure';
+import PaymentSuccess from './pages/rider/PaymentSuccess';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
@@ -30,7 +38,7 @@ const handleTabChange=(id,path)=>{
 }
 
 const handleLogout=()=>{
-  dispatch(logout());
+  dispatch(logoutUser());
   navigate('/login');
 }
 
@@ -104,18 +112,94 @@ function App() {
           <Route
           path="/rider/home"
           element={
-            <ProtectedRoute allowedRoles={['rider']}>
-              <RiderLayout activeTabId="home">
-               <RideHome
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="home">
+               <RiderHome
                  onSearchClick={() => window.location.href = '/rider/set-location'}
                   onApplyDriverClick={() => window.location.href = '/driver/apply'}
                />
-              </RiderLayout>
-            </ProtectedRoute>
+            //   </RiderLayout>
+            // </ProtectedRoute>
           }/>
 
-          
+          <Route
+          path="/rider/set-location"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="home">
+                <SetLocation />
+          //     </RiderLayout>
+          // </ProtectedRoute>
+          }
+        />
 
+     <Route
+          path="/rider/ride-options"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="home">
+                <RideOptions />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+      />
+
+       <Route
+          path="/rider/searching"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <Searching />
+            // </ProtectedRoute> 
+          }
+        />
+
+
+       <Route
+          path="/rider/tracking/:rideId"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="home">
+                <LiveTracking />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+        />
+
+
+        <Route
+          path="/rider/completed/:rideId"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <Completed />
+            // </ProtectedRoute>
+          }
+        />
+
+     {/* <Route
+          path="/rider/payment/:rideId"
+          element={
+            <ProtectedRoute allowedRoles={['rider']}>
+              <Payment />
+            </ProtectedRoute>
+          }
+        /> */}
+
+        <Route
+          path="/rider/payment/success"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <PaymentSuccess />
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/payment/failure"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <PaymentFailure />
+            // </ProtectedRoute>
+          }
+        />
 
 
     </Routes>

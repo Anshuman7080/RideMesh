@@ -18,6 +18,10 @@ import LiveTracking from './pages/rider/LiveTracking';
 import Completed from './pages/rider/Completed';
 import PaymentFailure from './pages/rider/PaymentFailure';
 import PaymentSuccess from './pages/rider/PaymentSuccess';
+import RideHistory from './pages/rider/RideHistory';
+import RideDetail from './pages/rider/RideDetail';
+import RiderProfile from './pages/rider/RiderProfile';
+import Notifications from './pages/rider/Notifications';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
@@ -200,6 +204,48 @@ function App() {
             // </ProtectedRoute>
           }
         />
+      
+      <Route
+          path="/rider/history"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="history">
+                <RideHistory />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/history/:rideId"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="history">
+                <RideDetail />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/profile"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="profile">
+                <RiderProfile />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rider/notifications"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+            //   <RiderLayout activeTabId="notifications">
+                <Notifications />
+            //   </RiderLayout>
+            // </ProtectedRoute>
+          }
+        />
+
 
 
     </Routes>

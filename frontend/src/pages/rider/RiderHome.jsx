@@ -108,7 +108,7 @@ const renderPanelContent = () => (
             className="text-white hover:bg-white/10 hover:text-white p-0 text-xs font-semibold flex items-center gap-1.5"
             onClick={onApplyDriverClick}
           >
-            Apply Now <ArrowRight size={13} />
+           <div className="flex items-center gap-1"> Apply Now <ArrowRight size={13} /></div>
           </Button>
         </div>
       </Card>

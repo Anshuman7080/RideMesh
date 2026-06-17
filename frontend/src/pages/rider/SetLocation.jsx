@@ -47,6 +47,7 @@ const redIcon = new L.Icon({
 
 const FitBounds = ({ p1, p2 }) => {
   const map = useMap();
+
   useEffect(() => {
     if (p1 && p2) {
       const bounds = L.latLngBounds([p1, p2]);
@@ -76,6 +77,8 @@ const SetLocation = () => {
 
   const pickupMarkerRef = useRef(null);
   const dropoffMarkerRef = useRef(null);
+  const pickupTimeout = useRef(null);
+   const dropoffTimeout = useRef(null);
 
  const updateAddress = async (type, lat, lng) => {
   try {
@@ -99,6 +102,31 @@ const SetLocation = () => {
     } else {
       setDropoffAddr('Unable to fetch address');
     }
+  }
+};
+
+const getCoordinates = async (address) => {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+    );
+
+    const data = await res.json();
+
+    if (data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
+
+      console.log('Latitude:', lat);
+      console.log('Longitude:', lng);
+
+      return { lat, lng };
+    }
+
+    return null;
+  } catch (err) {
+    console.error('Geocoding failed:', err);
+    return null;
   }
 };
 
@@ -131,8 +159,10 @@ const SetLocation = () => {
   );
 
   const handleConfirm = () => {
+    
     const dist = getDistance(pickupCoord[0], pickupCoord[1], dropoffCoord[0], dropoffCoord[1]);
     
+
     dispatch(setPickup({
       latitude: pickupCoord[0],
       longitude: pickupCoord[1],
@@ -147,9 +177,43 @@ const SetLocation = () => {
 
     dispatch(setDistanceAndFare(dist));
     dispatch(setBookingStatus('ride-options'));
-    
+   
     navigate('/rider/ride-options');
   };
+
+  const handlePickupChange=async(e)=>{
+    e.preventDefault();
+    const value=e.target.value;
+    setPickupAddr(value);
+   
+    //clear previous timer
+    if(pickupTimeout.current){
+      clearTimeout(pickupTimeout.current);
+    }
+    pickupTimeout.current=setTimeout(async()=>{
+      const res=await getCoordinates(value);
+      if(res){
+        setPickupCoord([res.lat,res.lng]);
+      }
+    },3000);
+  }
+
+   const handleDropoffChange=async(e)=>{
+    e.preventDefault();
+    const value=e.target.value;
+    setDropoffAddr(value);
+   
+    //clear previous timer
+    if(dropoffTimeout.current){
+      clearTimeout(dropoffTimeout.current);
+    }
+    dropoffTimeout.current=setTimeout(async()=>{
+      const res=await getCoordinates(value);
+      if(res){
+        setDropoffCoord([res.lat,res.lng]);
+      }
+    },3000);
+  }
 
   const renderContent = () => (
     <div className="space-y-6">
@@ -180,7 +244,7 @@ const SetLocation = () => {
             <input
               type="text"
               value={pickupAddr}
-              onChange={(e) => setPickupAddr(e.target.value)}
+              onChange={handlePickupChange}
               className="block w-full rounded-lg text-xs border border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-50 focus:border-accent-blue py-3.5 pl-10 pr-4 bg-white text-primary"
             />
           </div>
@@ -201,7 +265,7 @@ const SetLocation = () => {
             <input
               type="text"
               value={dropoffAddr}
-              onChange={(e) => setDropoffAddr(e.target.value)}
+              onChange={handleDropoffChange}
               className="block w-full rounded-lg text-xs border border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-blue-50 focus:border-accent-blue py-3.5 pl-10 pr-4 bg-white text-primary"
             />
           </div>

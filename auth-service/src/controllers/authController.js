@@ -227,16 +227,15 @@ const login = async (req, res) => {
         }
 
         const accessToken = jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id, role: user.role,name:user?.name },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '15m' }
         );
 
     
             res.cookie("token", accessToken, {
-            httpOnly: true,       
-            secure: false,        
-            sameSite: "lax",     
+            httpOnly: true,              
+             
             maxAge: 15 * 60 * 1000 
         });
 
@@ -248,7 +247,8 @@ const login = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                token:accessToken
             }
         });
 

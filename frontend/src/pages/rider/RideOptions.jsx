@@ -47,6 +47,9 @@ const RideOptions = () => {
     (state) => state.ride
   );
 
+  const {token}=useSelector((state)=>state.auth);
+
+  console.log("token is",token);
 
   useEffect(() => {
     if (!pickup || !dropoff) {
@@ -102,6 +105,7 @@ const RideOptions = () => {
         pickup,
         dropoff,
         distanceKm,
+        token
       })
     );
   };

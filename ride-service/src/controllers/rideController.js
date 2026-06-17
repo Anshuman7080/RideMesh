@@ -15,7 +15,7 @@ const {publishEvent}=require("../utils/eventBus");
 
 const createRide = async (req, res) => {
     try {
-
+   console.log("coming in createRide");
         const riderId = req.headers["x-user-id"];
 
         if (!riderId) {
@@ -70,7 +70,7 @@ const createRide = async (req, res) => {
 
 
         const eligibleDrivers =
-            nearbyDrivers.filter(
+            nearbyDrivers?.filter(
                 ([driverId]) =>
                     onlineDrivers.includes(
                         driverId
@@ -83,7 +83,8 @@ const createRide = async (req, res) => {
                 Number(a[1]) -
                 Number(b[1])
         );
-
+    
+        console.log("eligibleDrivers are",eligibleDrivers)
 
        if (eligibleDrivers.length === 0) {
 
@@ -121,6 +122,11 @@ const createRide = async (req, res) => {
                 drivers: eligibleDrivers.map(([driverId]) => driverId)
             });
 
+            await redisClient.set(
+            `ride-Created:${ride._id}`,   
+            riderId,              
+            { EX: 86400 }         
+           );
 
         await RideStatusHistory.create({
             rideId: ride._id,
@@ -806,6 +812,8 @@ const completeRide = async (req, res) => {
                 status:"RIDE_COMPLETED"
             }
          )
+
+         await redisClient.del(`ride-Created:${rideId}`);
 
         
         return res.status(200).json({

@@ -67,21 +67,35 @@ const initializeSocket = (server) => {
 
                 const {rideId,latitude,longitude}=data;
 
-             await redisClient.geoAdd(
-                "drivers:geo",
-                {
-                    longitude: Number(longitude),
-                    latitude: Number(latitude),
-                    member: socket.userId
-                }
-            );
+                console.log("hittin location-update",latitude,longitude,socket.userId)
+            
+
+             await redisClient.geoAdd("drivers:geo", {
+                longitude: parseFloat(longitude),
+                latitude: parseFloat(latitude),
+                member: String(socket.userId),
+            });
+
+            console.log("coming after redis client");
                
-            if (!ride || !ride.riderId) {
+            if (!rideId ) {
                 console.log("no ride found or invalid ride data");
                 return;
             }
 
-                const riderSocketRoom = `rider:${ride.riderId}`;
+            const riderId = await redisClient.get(`ride-Created:${rideId}`);
+
+                    if (!riderId) {
+                    return res.status(404).json({
+                        success: false,
+                        message: "Ride not found or expired"
+                    });
+                    }
+
+                    console.log("Fetched riderId:", riderId);
+
+
+                const riderSocketRoom = `rider:${riderId}`;
                 // console.log("riderID",ride.riderId)
 
                 io.to(riderSocketRoom)

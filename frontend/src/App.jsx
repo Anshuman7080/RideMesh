@@ -78,7 +78,7 @@ const DriverLayout = ({ children }) => {
   const dispatch = useDispatch();
   
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     navigate('/login');
   };
 

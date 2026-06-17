@@ -15,6 +15,8 @@ const Signup = () => {
 
     const {loading,error,otpSent,otpSentEmail}=useSelector((state)=>state.auth);
 
+    console.log("loading,error,otpSent,otpSentEmail",loading,error,otpSent,otpSentEmail)
+
     const [formData,setFormData]=useState({
         name:'',
         email:'',
@@ -75,8 +77,11 @@ const Signup = () => {
     e.preventDefault();
 
     if(!validate())return;
+    const name=formData?.name;
+    const password=formData?.password
+    const email=formData?.email
 
-    dispatch(sendOtp({name,email,password}));
+    dispatch(sentOtp({name,email,password}));
   }
   
   return (

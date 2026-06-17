@@ -13,9 +13,10 @@ const VerifyOtp = () => {
     const dispatch=useDispatch();
 
     const {loading,error,signUpSuccess,otpSentEmail}=useSelector((state)=>state.auth);
-
+console.log("signUpSuccess",signUpSuccess)
 
     const [email,setEmail]=useState(otpSentEmail || '');
+    console.log("email is",email);
     const [showEmailInput,setShowEmailInput]=useState(!otpSentEmail);
 
     const [otpVal,setOtpVal]=useState(['','','','','','']);
@@ -44,11 +45,11 @@ const VerifyOtp = () => {
         return ()=>clearInterval(interval);
     },[resendTimer]);
 
-    // useEffect(()=>{
-    //     if(signUpSuccess){
-    //         navigate('/rider/home');
-    //     }
-    // },[signUpSuccess,navigate]);
+    useEffect(()=>{
+        if(signUpSuccess){
+            navigate('/login');
+        }
+    },[signUpSuccess,navigate]);
 
 
     const handleChange=(index,value)=>{
@@ -71,17 +72,13 @@ const VerifyOtp = () => {
 
 
     const handleResend=()=>{
-        if(!email){
+       
+      if(!email){
             alert("Please enter an email address to resend OTP");
             return;
         }
-
-        dispatch(resendOtp()).
-        unwrap().then(()=>{
-            setResendTimer(30);
-            setCanResend(false);
-            alert("Verification OTP has been resent to your email.");
-        })
+console.log("email in resend",email);
+        dispatch(resendOtp({email}))
     }
 
     const handleSubmit=(e)=>{
@@ -96,7 +93,7 @@ const VerifyOtp = () => {
             return;
         }
 
-        dispatch(verifyOtp({}));
+        dispatch(verifyOtp({email,otpCode}));
     }
 
   

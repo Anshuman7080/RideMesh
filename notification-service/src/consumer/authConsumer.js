@@ -69,12 +69,13 @@ async function handleEvent(event,data){
     switch(event){
         case "email.sendSuccessfully":
             console.log("coming in email send successfully case...")
+            console.log("email in handleEvent",data.email);
+             await mailSender(
+                data.email,
+                "Verification Email from Uber",
+                emailVerificationTemplate(data.otp)
+                );
 
-             await mailSender({
-                  email:data.email,
-                  title:"Verification Email from Uber",
-                  body:emailVerificationTemplate(data.otp)
-             });
 
             break;
 

@@ -1,5 +1,4 @@
 const otpGenerator = require('otp-generator');
-const Otp = require("../models/otpSchema");
 
 const generateOtp=async(userId)=>{
      try{
@@ -9,16 +8,8 @@ const generateOtp=async(userId)=>{
             specialChars: false,
         });
 
-        const result = await Otp.findOne({otp: otp, userId: userId});
         console.log('OTP Generated : ', otp);
-        console.log('Result : ', result);
     
-        while(result) {
-            otp = otpGenerator.generate(6, {
-                upperCaseAlpahbets: false,
-            });
-            result = await Otp.findOne({otp: otp});
-        }
         return otp;
      }
      catch(error){

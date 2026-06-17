@@ -66,7 +66,10 @@ const handleSubmit=(e)=>{
     e.preventDefault();
     if(!validate())return;
 
-    dispatch(login());
+    const email=formData?.email;
+    const password=formData?.password;
+
+    dispatch(login({email,password}));
 }
 
 

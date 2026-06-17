@@ -1,18 +1,17 @@
 const User=require("../models/userSchema")
 const bcrypt=require("bcrypt")
-
-const {mailSender}=require("../services/emailService")
 const {generateOtp}=require("../services/otpService")
-const Otp=require("../models/otpSchema")
-const emailVerificationTemplate=require("../utils/emailVerificationTemplate")
 const jwt = require('jsonwebtoken');
 const { createRiderProfile } = require("../services/userService");
 const {publishEvent}=require("../utils/eventBus")
+const {redisClient}=require("../config/redis")
 
 
 const sendOtp = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body
+        console.log("coming in sendOtp");
+        const { name, email, password } = req.body
+        console.log("name, email, password",name, email, password)
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -32,7 +31,7 @@ const sendOtp = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        const otp = generateOtp()  
+        const otp =await generateOtp()  
 
   
         await redisClient.set(
@@ -41,7 +40,7 @@ const sendOtp = async (req, res) => {
                 name,
                 email,
                 password: hashedPassword,
-                role: role || 'rider',
+                role: 'rider',
                 otp
             }),
             'EX', 600  
@@ -68,10 +67,11 @@ const sendOtp = async (req, res) => {
         })
     }
 }
-
 const verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body
+
+        console.log("email,otp", email, otp);
 
         if (!email || !otp) {
             return res.status(400).json({
@@ -81,9 +81,10 @@ const verifyOtp = async (req, res) => {
         }
 
         const signupDataString = await redisClient.get(`signup:${email}`)
+        console.log("signupDataString", signupDataString)
 
         if (!signupDataString) {
-            return res.status(400).json({
+            return res.status(410).json({
                 success: false,
                 message: "OTP expired or invalid. Please sign up again."
             })
@@ -92,27 +93,25 @@ const verifyOtp = async (req, res) => {
         const signupData = JSON.parse(signupDataString)
 
         if (signupData.otp !== otp) {
-            return res.status(400).json({
+            return res.status(401).json({
                 success: false,
                 message: "Incorrect OTP"
             })
         }
 
-     
         const newUser = await User.create({
             name: signupData.name,
             email: signupData.email,
-            password: signupData.password,  
+            password: signupData.password,
             role: signupData.role,
             isVerified: true
         })
 
-          
         await createRiderProfile(newUser._id.toString(), newUser.name)
-            
-      
+
         await redisClient.del(`signup:${email}`)
 
+       
         return res.status(201).json({
             success: true,
             message: "Account verified successfully",
@@ -126,6 +125,7 @@ const verifyOtp = async (req, res) => {
 
     } catch (error) {
         console.log("Error in verifying OTP:", error)
+        
         return res.status(500).json({
             success: false,
             message: "Internal server error"
@@ -133,10 +133,12 @@ const verifyOtp = async (req, res) => {
     }
 }
 
+
 const resendOtp = async (req, res) => {
     try {
         const { email } = req.body
 
+        
         if (!email) {
             return res.status(400).json({
                 success: false,
@@ -146,8 +148,9 @@ const resendOtp = async (req, res) => {
 
         const signupDataString = await redisClient.get(`signup:${email}`)
 
+      
         if (!signupDataString) {
-            return res.status(400).json({
+            return res.status(410).json({
                 success: false,
                 message: "Signup session expired. Please sign up again."
             })
@@ -155,22 +158,22 @@ const resendOtp = async (req, res) => {
 
         const signupData = JSON.parse(signupDataString)
 
-        const newOtp = generateOtp()
+        const newOtp =await generateOtp()
         signupData.otp = newOtp
 
-    
         await redisClient.set(
             `signup:${email}`,
             JSON.stringify(signupData),
             'EX', 600
         )
 
-        // publish event for email sending
-        publishEvent("email.sendSuccessfully",{
-          email:email,
-          otp:newOtp
+       
+        publishEvent("email.sendSuccessfully", {
+            email: email,
+            otp: newOtp
         });
 
+       
         return res.status(200).json({
             success: true,
             message: "New OTP sent to your email"
@@ -178,12 +181,14 @@ const resendOtp = async (req, res) => {
 
     } catch (error) {
         console.log("Error in resending OTP:", error)
+        
         return res.status(500).json({
             success: false,
             message: "Internal server error"
         })
     }
 }
+
 
 const login = async (req, res) => {
     try {
@@ -223,17 +228,18 @@ const login = async (req, res) => {
 
         const accessToken = jwt.sign(
             { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: '15m' }
         );
 
     
-        res.cookie("token", accessToken, {
+            res.cookie("token", accessToken, {
             httpOnly: true,       
-            secure: true,       
-            sameSite: "strict",   
+            secure: false,        
+            sameSite: "lax",     
             maxAge: 15 * 60 * 1000 
         });
+
 
         return res.status(200).json({
             success: true,

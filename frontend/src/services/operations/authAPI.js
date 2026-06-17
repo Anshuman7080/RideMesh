@@ -13,21 +13,30 @@ import {
 
 import {apiConnector } from "../apiconnector"
 
+import { authEndPoints } from "../apis";
+
+const { SEND_OTP, VERIFY_OTP, RESEND_OTP, LOGIN } = authEndPoints;
+
+
+console.log("sendOPt",SEND_OTP);
+
 export const sentOtp = ({ name, email, password }) => 
   async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
 
     try {
-      const res = await apiConnector .post("/auth/send-otp", {
-        name,
-        email,
-        password,
-      });
+      const res = await apiConnector("POST",SEND_OTP,{
+        name,email,password
+      })
+
+       console.log("SENDOTP API RESPONSE............", res)
 
       dispatch(setOtpSent(true));
       dispatch(setOtpSentEmail(email));
     } catch (error) {
+
+      console.log("error is ",error);
       dispatch(
         setError(error.response?.data?.message || "Failed to send OTP")
       );
@@ -38,40 +47,33 @@ export const sentOtp = ({ name, email, password }) =>
   };
 
 
-export const verifyOtp =({ email, otp }) =>
+export const verifyOtp =({ email, otpCode }) =>
 
   async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     dispatch(setSignUpSuccess(false));
+    console.log("email,otp",email,otpCode);
 
     try {
-      const response = await apiConnector .post(
-        "/auth/verify-otp",
+      const response = await apiConnector("POST",VERIFY_OTP,
         {
           email,
-          otp,
+          otp:otpCode,
         }
       );
 
-      const data = response.data;
+      console.log("Response of verify opt",response);
 
-      const userObj = data.user;
-
-      const userToken =
-        data.token ||
-        data.accessToken ||
-        "mock_token_" + Date.now();
+    const userObj=response?.data?.user
 
       dispatch(setUser(userObj));
-      dispatch(setToken(userToken));
       dispatch(setRole(userObj.role || "rider"));
 
       dispatch(setSignUpSuccess(true));
       dispatch(setOtpSent(false));
       dispatch(setOtpSentEmail(null));
 
-      localStorage.setItem("token", userToken);
       localStorage.setItem(
         "user",
         JSON.stringify(userObj)
@@ -81,6 +83,7 @@ export const verifyOtp =({ email, otp }) =>
         userObj.role || "rider"
       );
     } catch (error) {
+      console.log("error in verifying opt",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -97,12 +100,19 @@ export const resendOtp = ({ email }) =>
   async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
+    console.log("email in resendotp",email);
 
     try {
-      await apiConnector .post("/auth/resend-otp", {
+    const res=  await apiConnector("POST",RESEND_OTP,{
         email,
       });
+
+      console.log("response of resending otp",res);
+
+
     } catch (error) {
+
+      console.log("Error in ressending otp",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -120,13 +130,14 @@ export const login =({ email, password }) =>
     dispatch(setError(null));
 
     try {
-      const response = await apiConnector .post(
-        "/auth/login",
+      const response = await apiConnector("POST",LOGIN,
         {
           email,
           password,
         }
       );
+
+      console.log("response of user login",response);
 
       const data = response.data;
 

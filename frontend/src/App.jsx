@@ -22,6 +22,15 @@ import RideHistory from './pages/rider/RideHistory';
 import RideDetail from './pages/rider/RideDetail';
 import RiderProfile from './pages/rider/RiderProfile';
 import Notifications from './pages/rider/Notifications';
+import DriverApply from './pages/driver/DriverApply';
+import ApplySubmitted from './pages/driver/ApplySubmitted';
+// import DriverHome from './pages/driver/DriverHome';
+import DriverRequests from './pages/driver/DriverRequests';
+import DriverCompleted from './pages/driver/DriverCompleted';
+import DriverEarnings from './pages/driver/DriverEarnings';
+import DriverProfile from "./pages/driver/DriverProfile"
+import DriverHome from "./pages/driver/DriverHome"
+import { SocketProvider } from './context/SocketProvider';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
@@ -64,6 +73,32 @@ return (
 
 }
 
+const DriverLayout = ({ children }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans">
+      <nav className="h-16 bg-black border-b border-gray-900 flex items-center justify-between px-6">
+        <span className="font-extrabold text-lg text-accent-blue tracking-wider">RideMesh Driver</span>
+        <button 
+          onClick={handleLogout}
+          className="text-xs px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all active:scale-95"
+        >
+          Sign Out
+        </button>
+      </nav>
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+    </div>
+  );
+};
 
 function App() {
 
@@ -71,6 +106,7 @@ function App() {
 
   return (
    <BrowserRouter>
+   <SocketProvider>
     <Routes>
         {/* public routes */}
           <Route
@@ -116,44 +152,44 @@ function App() {
           <Route
           path="/rider/home"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="home">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="home">
                <RiderHome
                  onSearchClick={() => window.location.href = '/rider/set-location'}
                   onApplyDriverClick={() => window.location.href = '/driver/apply'}
                />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+               </RiderLayout>
+             </ProtectedRoute>
           }/>
 
           <Route
           path="/rider/set-location"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="home">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="home">
                 <SetLocation />
-          //     </RiderLayout>
-          // </ProtectedRoute>
+               </RiderLayout>
+           </ProtectedRoute>
           }
         />
 
      <Route
           path="/rider/ride-options"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="home">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="home">
                 <RideOptions />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+             </RiderLayout>
+             </ProtectedRoute>
           }
       />
 
        <Route
           path="/rider/searching"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
+             <ProtectedRoute allowedRoles={['rider']}>
               <Searching />
-            // </ProtectedRoute> 
+           </ProtectedRoute> 
           }
         />
 
@@ -247,8 +283,93 @@ function App() {
         />
 
 
+        <Route
+          path="/driver/apply"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <DriverApply />
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/driver/apply/submitted"
+          element={
+            // <ProtectedRoute allowedRoles={['rider']}>
+              <ApplySubmitted />
+            // </ProtectedRoute>
+          }
+        />
 
+       <Route
+          path="/driver/home"
+          element={
+            <ProtectedRoute allowedRoles={['driver']}>
+              <DriverLayout>
+                <DriverHome />
+               </DriverLayout>
+             </ProtectedRoute>
+          }
+        />
+      
+       <Route
+          path="/driver/requests"
+          element={
+            // <ProtectedRoute allowedRoles={['driver']}>
+            //   <DriverLayout>
+                <DriverRequests />
+            //   </DriverLayout>
+            // </ProtectedRoute>
+          }
+        />
+
+{/* 
+        <Route
+          path="/driver/active/:rideId"
+          element={
+            // <ProtectedRoute allowedRoles={['driver']}>
+            //   <DriverLayout>
+                <ActiveRide />
+            //   </DriverLayout>
+            // </ProtectedRoute>
+          }
+        /> */}
+
+
+         <Route
+          path="/driver/completed"
+          element={
+            // <ProtectedRoute allowedRoles={['driver']}>
+              <DriverCompleted />
+            // </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/driver/earnings"
+          element={
+            // <ProtectedRoute allowedRoles={['driver']}>
+            //   <DriverLayout>
+                <DriverEarnings />
+            //   </DriverLayout>
+            // </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/driver/profile"
+          element={
+            // <ProtectedRoute allowedRoles={['driver']}>
+            //   <DriverLayout>
+                <DriverProfile />
+            //   </DriverLayout>
+            // </ProtectedRoute>
+          }
+        />
+
+
+ <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  </SocketProvider>
    </BrowserRouter>
   );
 }

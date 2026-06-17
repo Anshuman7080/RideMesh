@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { CloudSnow } from "lucide-react";
 
 const savedHistory = localStorage.getItem("rideHistory")
   ? JSON.parse(localStorage.getItem("rideHistory"))
@@ -24,10 +25,12 @@ const rideSlice = createSlice({
   initialState,
   reducers: {
     setPickup: (state, action) => {
+      console.log("coming in setPickup",action,state);
       state.pickup = action.payload;
     },
 
     setDropoff: (state, action) => {
+      console.log("coming in setDrop off",state,action);
       state.dropoff = action.payload;
     },
 

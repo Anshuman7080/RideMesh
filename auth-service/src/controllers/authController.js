@@ -229,14 +229,14 @@ const login = async (req, res) => {
         const accessToken = jwt.sign(
             { id: user._id, role: user.role,name:user?.name },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '15m' }
+            { expiresIn: '60m' }
         );
 
     
             res.cookie("token", accessToken, {
             httpOnly: true,              
              
-            maxAge: 15 * 60 * 1000 
+            maxAge: 60 * 60 * 1000 
         });
 
 

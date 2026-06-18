@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, Clock, MapPin, Check, X, AlertTriangle } from 'lucide-react';
-// import { getDriverRequests, acceptRide, rejectRide, getRideDetails } from '../../ride/rideSlice';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Loader from '../../components/Loader';
+import { getDriverRequests,acceptRide } from '../../services/operations/rideAPI';
 
 const DriverRequests=()=>{
     const navigate=useNavigate();
@@ -14,13 +14,26 @@ const DriverRequests=()=>{
     const {driverRequests,loading,error}=useSelector((state)=>state.ride);
     const [detailedRequests,setDetailedRequests]=useState([]);
     const [fetchingDetails,setFetchingDetails]=useState(false);
+    const {token}=useSelector((state)=>state.auth);
 
-    // useEffect(()=>{
-    //     dispatch(getDriverRequests());
-    // })
+    useEffect(()=>{
+      if(!token)return;
+        dispatch(getDriverRequests(token));
+    },[token]);
+
+    useEffect(() => {
+  setDetailedRequests(driverRequests);
+}, [driverRequests]);
+
+
+
 
 const handleAccept=(rideId)=>{
+     if(!rideId || !token)return;
 
+     dispatch(acceptRide(rideId,token,navigate));
+
+     
 }
 
 const handleReject=(rideId)=>{

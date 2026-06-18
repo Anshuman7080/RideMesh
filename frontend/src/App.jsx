@@ -31,7 +31,8 @@ import DriverEarnings from './pages/driver/DriverEarnings';
 import DriverProfile from "./pages/driver/DriverProfile"
 import DriverHome from "./pages/driver/DriverHome"
 import { SocketProvider } from './context/SocketProvider';
-
+import { ToastContainer } from "react-toastify";
+import { useSocket } from './context/SocketProvider';
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
   const dispatch=useDispatch();
@@ -76,11 +77,31 @@ return (
 const DriverLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {currentRide}=useSelector((state)=>state.ride);
+  const {socket}=useSocket();
+  console.log("currenRide on driver layout",currentRide);
   
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate('/login');
   };
+
+  useEffect(()=>{
+    if(!socket || !currentRide?.riderId)return;
+
+    console.log('[Driver] Ride tracking started');
+
+    const watchId=navigator.geolocation.watchPosition((pos)=>{
+      socket.emit('location-update-forRide',{
+        riderId:currentRide.riderId,
+        latitude:pos.coords.latitude,
+        longitude:pos.coords.longitude,
+      });
+    })
+    return ()=>{
+      navigator.geolocation.clearWatch(watchId);
+    };
+  },[socket,currentRide?.riderId]);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans">
@@ -197,11 +218,11 @@ function App() {
        <Route
           path="/rider/tracking/:rideId"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="home">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="home">
                 <LiveTracking />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+               </RiderLayout>
+             </ProtectedRoute>
           }
         />
 
@@ -369,6 +390,7 @@ function App() {
 
  <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <ToastContainer />
   </SocketProvider>
    </BrowserRouter>
   );

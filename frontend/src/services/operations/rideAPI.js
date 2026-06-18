@@ -8,9 +8,12 @@ import {
   setBookingStatus,
 } from "../../slices/rideSlice";
 import {apiConnector } from "../apiconnector"
+import { useNavigate } from "react-router-dom";
 
 import {rideEndPoints} from "../apis";
-const {CREATE_RIDE}=rideEndPoints
+const {CREATE_RIDE,GET_DRIVER_REQUESTS,ACCEPT_RIDE,
+  GET_RIDE_DETAILS,
+}=rideEndPoints
 
 export const createRide =({ pickup, dropoff, distanceKm,token}) =>
   async (dispatch) => {
@@ -68,32 +71,93 @@ export const createRide =({ pickup, dropoff, distanceKm,token}) =>
     }
   };
 
-export const getRideDetails =
-  (rideId) => async (dispatch) => {
+
+export const getDriverRequests = (token) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
     try {
-      const response = await apiConnector(`/rides/${rideId}`);
-
-      const ride = response.data.ride;
-
-      dispatch(setCurrentRide(ride));
-
-      const history =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      const updated = history.map((r) =>
-        r._id === ride._id ? ride : r
+      const response = await apiConnector(
+        "GET",
+        GET_DRIVER_REQUESTS,
+        {},
+        {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
       );
 
-      dispatch(setRideHistory(updated));
+      console.log("response of getDriverRequests....", response.data.requests);
+
+     
+      const formattedRequests = (response.data.requests || []).map((req) => ({
+        rideId: req.rideId._id, 
+        details: {
+          _id: req.rideId._id,
+          pickup: { address: req.rideId.pickup?.address },
+          dropoff: { address: req.rideId.dropoff?.address },
+          estimatedFare: req.rideId.estimatedFare,
+          distanceKm: req.rideId.distanceKm,
+        },
+      }));
+
+      dispatch(setDriverRequests(formattedRequests));
+    } catch (error) {
+      console.log("error in getting driver requests", error);
+      dispatch(
+        setError(
+          error.response?.data?.message || "Error in getting driver requests"
+        )
+      );
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+
+export const acceptRide =
+  (rideId,token,navigate) => async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await apiConnector(
+       "PATCH",
+       ACCEPT_RIDE(rideId),
+       {},
+       {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",}
+      );
+       
+      console.log("response of accept ride",response);
+
+      dispatch(setCurrentRide(response.data.ride));
+
+      const current =
+        JSON.parse(localStorage.getItem("driverRequests")) ||
+        [];
+
+      const filtered = current.filter(
+        (r) => r.rideId !== rideId
+      );
+
+      dispatch(setDriverRequests(filtered));
+
+      navigate(`/driver/active/${rideId}`);
+
     } catch (error) {
       dispatch(
         setError(
           error.response?.data?.message ||
-            "Failed to fetch ride details"
+            "Failed to accept ride"
         )
       );
+    } finally {
+      dispatch(setLoading(false));
     }
   };
+
 
 export const cancelRide =
   ({ rideId, reason }) =>
@@ -181,57 +245,6 @@ export const getNearbyDrivers =
   };
 
 
-
-export const getDriverRequests = () => async (dispatch) => {
-  dispatch(setLoading(true));
-
-  try {
-    const response = await apiConnector("/rides/request");
-
-    dispatch(setDriverRequests(response.data.requests || []));
-  } catch (error) {
-    dispatch(
-      setError(
-        error.response?.data?.message ||
-          "Failed to fetch ride requests"
-      )
-    );
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
-export const acceptRide =
-  (rideId) => async (dispatch) => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await apiConnector(
-        `/rides/${rideId}/accept`
-      );
-
-      dispatch(setCurrentRide(response.data.ride));
-
-      const current =
-        JSON.parse(localStorage.getItem("driverRequests")) ||
-        [];
-
-      const filtered = current.filter(
-        (r) => r.rideId !== rideId
-      );
-
-      dispatch(setDriverRequests(filtered));
-    } catch (error) {
-      dispatch(
-        setError(
-          error.response?.data?.message ||
-            "Failed to accept ride"
-        )
-      );
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
 
 export const rejectRide =
   (rideId) => async (dispatch) => {
@@ -385,3 +398,29 @@ export const rateRider =
       );
     }
   };
+
+  export const getRideDetails=
+  ({rideId,token})=>async(dispatch)=>{
+
+    try{
+
+      console.log("rideId in thunk",rideId);
+      const response=await apiConnector('GET',GET_RIDE_DETAILS(rideId),{},{
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      })
+
+      console.log("response of getRideDetails....",response);
+
+      dispatch(setCurrentRide(response.data.ride));
+
+
+    }
+    catch(error){
+
+      console.log("error in getting rideDetails",error);
+
+    }finally{
+
+    }
+  }

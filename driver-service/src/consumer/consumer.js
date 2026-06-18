@@ -37,10 +37,17 @@ module.exports = { consumeDriverEvents };
 const handleEvent = async (event, data) => {
     switch (event) {
         case "driver.availability.updated":
-            await Driver.findByIdAndUpdate(
-                data.driverId,
-                { isAvailable: data.isAvailable }
-            );
+            console.log("coming in driver availavlity update ",data);
+            try{
+                const updatedDriver = await Driver.findOneAndUpdate(
+                { userId: data.driverId },  
+                { isAvailable: data.isAvailable },
+                { new: true}
+                );
+            }
+            catch(error){
+                 console.log("error in handle driver availability update",error);
+            }
             break;
 
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,useMemo  } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
@@ -11,6 +11,9 @@ import StatusBadge from '../../components/StatusBadge';
 import BottomSheet from '../../components/BottomSheet';
 import SidePanel from '../../components/SidePanel';
 import Modal from '../../components/Modal';
+
+import { useSocket } from '../../context/SocketProvider';
+import { getRiderProfile } from '../../services/operations/riderAPI';
 
 const pickupIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
@@ -52,121 +55,98 @@ const LiveTracking=()=>{
     const {rideId}=useParams();
     const navigate=useNavigate();
     const dispatch=useDispatch();
+    const {socket}=useSocket();
+
     
     const {currentRide,loading}=useSelector((state)=>state.ride);
 
-    const [driverCoord,setDriverCoord]=useState(null);
+
+    const [driverCoord,setDriverCoord]=useState();
     const [eta,setEta]=useState('Locating driver...');
     const [showCancelModal,setShowCancelModal]=useState(false);
+    const [driver,setDriver]=useState({});
 
     const [cancelReason,setCancelReason]=useState('');
+
+    const {token}=useSelector((state)=>state.auth);
+
+   const pickupPos = useMemo(() => {
+    if (!currentRide?.pickup?.latitude) return null;
+    return [currentRide.pickup.latitude, currentRide.pickup.longitude];
+  }, [currentRide?.pickup?.latitude, currentRide?.pickup?.longitude]);
+ 
+  const dropoffPos = useMemo(() => {
+    if (!currentRide?.dropoff?.latitude) return null;
+    return [currentRide.dropoff.latitude, currentRide.dropoff.longitude];
+  }, [currentRide?.dropoff?.latitude, currentRide?.dropoff?.longitude]);
+
+    // const getDriverDetails=(driverId)=>{
+    //     return {
+    //   name: 'Rohan Kumar',
+    //   rating: '4.8★',
+    //   trips: '1,420 trips',
+    //   vehicle: 'White Suzuki Swift Dzire',
+    //   number: 'UP65-CC-4321',
+    //   avatar: 'R',
+    // };
+    // }
+
+ //  const driver=getDriverDetails(currentRide?.driverId);
+
+
+
+ useEffect(()=>{
+
+ },[]);
+
+   useEffect(()=>{
+    if (!rideId) return; 
+    if(currentRide)return;
     
-    const pollingIntervalRef=useRef(null);
-    const animationIntervalRef=useRef(null);
-
-    const getDriverDetails=(driverId)=>{
-        return {
-      name: 'Rohan Kumar',
-      rating: '4.8★',
-      trips: '1,420 trips',
-      vehicle: 'White Suzuki Swift Dzire',
-      number: 'UP65-CC-4321',
-      avatar: 'R',
-    };
-    }
-
-   const driver=getDriverDetails(currentRide?.driverId);
+    
+    dispatch(getRideDetails({rideId,token}));
+   },[currentRide, rideId, token]);
 
    // Fetch ride details on mount and poll every 5s
-   useEffect(()=>{
-    dispatch(getRideDetails(rideId));
 
-    pollingIntervalRefRef.current=setInterval(()=>{
-        dispatch(getRideDetails(rideId))
-        .unwrap()
-        .then((data)=>{
-            if(data.ride){
-                const status=data.ride.status;
-                if(status==='COMPLETED'){
-                    clearInterval(pollingIntervalRef.current);
-                    navigate(`/rider/completed/${rideId}`);
-                }else if(status==='CANCELED'){
-                    clearInterval(pollingIntervalRef.current)
-                    alert('You ride was cacelled.');
-                    navigate('/rider/home');
-                }
-            }
-        })
-        .catch(()=>{});
-    },5000);
+   useEffect(()=>{
+    if(!rideId)return;
+    dispatch(getRideDetails(rideId));
+   },[rideId,dispatch]);
+
+   useEffect(()=>{
+    if(!currentRide)return;
+    const pLat=currentRide.pickup.latitude;
+    const pLng=currentRide.pickup.longitude;
+
+    setDriverCoord([pLat,pLng]);
+   },[currentRide]);
+
+   
+  useEffect(()=>{
+    if(!socket || !rideId)return;
+
+    console.log("[LiveTracking] Listening for driver location updates");
+     
+    const handleDriverLocation=(data)=>{
+      console.log('[Socket] driver-location-updated:',data);
+
+      if(data.rideId!==rideId)return;
+
+      setDriverCoord([data.latitude,data.longitude]);
+    }
+
+    socket.on('driver-location-updated',handleDriverLocation);
 
     return ()=>{
-        if(pollingIntervalRef.current)clearInterval(pollingIntervalRef.current);
-        if(animationIntervalRef.current)clearInterval(animationIntervalRef.current);
+      socket.off('driver-location-updated',handleDriverLocation);
     }
 
-   },[rideId,dispatch,navigate]);
+  },[socket,rideId]);
 
-//    driver marker animation
 
-useEffect(()=>{
 
-    if(!currentRide)return ;
-    
-    const pLat=currentRide?.pickup?.latitude;
-    const pLng=currentRide?.pickup?.longitude;
-    const dLat=currentRide?.dropoff?.latitude;
-    const dLng=currentRide?.dropoff?.longitude;
 
-    if(currentRide?.status==='ACCEPTED'){
-        const startLat=pLat+0.008;
-        const startLng=pLng-0.008;
-
-        let pct=0;
-        setDriverCoord([startLat,startLng]);
-        setEta('Driver arriving in 4 mins');
-
-        if(animationIntervalRef.current)clearInterval(animationIntervalRef?.current);
-
-        animationIntervalRef.current=setInterval(()=>{
-            pct=Math.min(pct+0.01,1);
-            const currentLat=startLat + (pLat-startLat)*pct;
-            const currentLng=startLng + (pLng-startLng)*pct;
-            setDriverCoord([currentLat,currentLng]);
-
-            const remainingMin=Math.ceil(4*(1-pct));
-            setEta(remainingMin > 0 ? `Driver arriving in ${remainingMin} mins`: 'Driver has arrived');
-
-            if(pct>=1)clearInterval(animationIntervalRef.current);
-
-        },1500);
-    }else if(currentRide.status==='DRIVER_ARRIVED'){
-
-        setDriverCoord([pLat,pLng]);
-        setEta('Driver has arrived at pickup location');
-        if(animationIntervalRef.current)clearInterval(animationIntervalRef.current);
-    }else if (currentRide.status === 'IN_PROGRESS') {
-      // Driver is moving from pickup to dropoff
-      let pct = 0;
-      setDriverCoord([pLat, pLng]);
-      setEta('On trip. Arriving in 8 mins');
-
-      if (animationIntervalRef.current) clearInterval(animationIntervalRef.current);
-      
-      animationIntervalRef.current = setInterval(() => {
-        pct = Math.min(pct + 0.01, 1);
-        const currentLat = pLat + (dLat - pLat) * pct;
-        const currentLng = pLng + (dLng - pLng) * pct;
-        setDriverCoord([currentLat, currentLng]);
-        
-        const remainingMin = Math.ceil(8 * (1 - pct));
-        setEta(remainingMin > 0 ? `Arriving at destination in ${remainingMin} mins` : 'Reaching destination...');
-        
-        if (pct >= 1) clearInterval(animationIntervalRef.current);
-      }, 2000);
-    }
-
-},[currentRide?.status,currentRide?.driverId]);
 
 const handleCancelSubmit = () => {
     if (!rideId) return;
@@ -183,15 +163,45 @@ const handleCancelSubmit = () => {
       });
   };
 
+// useEffect(() => {
+//     if (!pickupPos || !dropoffPos) return;
+ 
+//     const stepRef = { current: 0 };
+//     setDriverCoord(pickupPos);
+ 
+//     const interval = setInterval(() => {
+//       stepRef.current += 0.05;
+ 
+//       if (stepRef.current >= 1) {
+//         clearInterval(interval);
+//         setDriverCoord(dropoffPos);
+//         return;
+//       }
+ 
+//       const lat = pickupPos[0] + (dropoffPos[0] - pickupPos[0]) * stepRef.current;
+//       const lng = pickupPos[1] + (dropoffPos[1] - pickupPos[1]) * stepRef.current;
+ 
+//       setDriverCoord([lat, lng]);
+//     }, 500);
+ 
+//     return () => clearInterval(interval);
+//   }, [pickupPos, dropoffPos]);
+
     if (!currentRide) return null;
 
-  const pickupPos = [currentRide.pickup.latitude, currentRide.pickup.longitude];
-  const dropoffPos = [currentRide.dropoff.latitude, currentRide.dropoff.longitude];
+
 
   // Draw appropriate route lines based on state
-  const routePoints = currentRide.status === 'IN_PROGRESS' 
-    ? [driverCoord || pickupPos, dropoffPos]
-    : [driverCoord || pickupPos, pickupPos];
+  // const routePoints = currentRide?.status === 'IN_PROGRESS' 
+  //   ? [driverCoord || pickupPos, dropoffPos]
+  //   : [driverCoord || pickupPos, pickupPos];
+
+    const routeLineForPickup=[driverCoord,pickupPos];
+    const routeLineForDropoff=[pickupPos,dropoffPos]
+
+    // console.log("driverCoords",driverCoord);
+    // console.log("pickup",pickupPos)
+
 
 
 const renderInfoPanel = () => (
@@ -202,7 +212,7 @@ const renderInfoPanel = () => (
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Estimated ETA</span>
           <h2 className="text-lg font-extrabold text-primary tracking-tight">{eta}</h2>
         </div>
-        <StatusBadge status={currentRide.status} />
+        <StatusBadge status={currentRide?.status} />
       </div>
 
       {/* Driver details card */}
@@ -245,7 +255,7 @@ const renderInfoPanel = () => (
       </div>
 
     
-      {(currentRide.status === 'ACCEPTED' || currentRide.status === 'DRIVER_ARRIVED') && (
+      {(currentRide?.status === 'ACCEPTED' || currentRide?.status === 'DRIVER_ARRIVED') && (
         <div className="pt-2 border-t border-gray-100">
           <Button
             variant="outline"
@@ -271,6 +281,8 @@ const renderInfoPanel = () => (
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <FitBounds p1={pickupPos} p2={dropoffPos} p3={driverCoord} />
+          <Polyline positions={routeLineForPickup} color=" #ADD8E6" weight={4} opacity={0.7} />
+          <Polyline positions={routeLineForDropoff} color="#008000" weight={4} opacity={0.7} />
           
           <Marker position={pickupPos} icon={pickupIcon}>
             <Popup><span className="text-xs font-bold text-accent-green">Pickup Spot</span></Popup>
@@ -292,7 +304,7 @@ const renderInfoPanel = () => (
           )}
 
      
-          {driverCoord && <Polyline positions={routePoints} color="#276EF1" weight={4} opacity={0.75} dashArray="5, 10" />}
+          {/* {driverCoord && <Polyline positions={driverCoord} color="#276EF1" weight={4} opacity={0.75} dashArray="5, 10" />} */}
         </MapContainer>
       </div>
 

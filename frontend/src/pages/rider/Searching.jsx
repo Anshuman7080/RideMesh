@@ -2,14 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { X, Search, MapPin, Compass } from 'lucide-react';
-import { resetBookingState } from "../../slices/rideSlice";
-import {cancelRide,getRideDetails} from "../../services/operations/rideAPI"
+import { resetBookingState,updateCurrentRideStatus } from "../../slices/rideSlice";
+import {cancelRide} from "../../services/operations/rideAPI"
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import { useSocket } from '../../context/SocketProvider';
 
 const Searching = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {socket}=useSocket();
 
   const { currentRide, loading } = useSelector((state) => state.ride);
   const pollingRef = useRef(null);
@@ -21,8 +23,7 @@ const Searching = () => {
     }
   }, [currentRide, navigate]);
 
-  // Start polling interval to watch for driver acceptance status changes (pending)
-
+ 
 
   const handleCancel = () => {
     if (!currentRide || !currentRide._id) return;

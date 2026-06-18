@@ -171,6 +171,15 @@ const getRideDetails = async (req, res) => {
 
     try {
 
+        const userId = req.headers["x-user-id"];
+        
+        if(!userId){
+            return res.status(401).json({
+                success:false,
+                message:"Unauthorized"
+            })
+        }
+
         const { rideId } = req.params;
 
         if (!rideId) {
@@ -187,6 +196,13 @@ const getRideDetails = async (req, res) => {
                 success: false,
                 message: "Ride not found"
             });
+        }
+
+        if(ride.driverId!==userId && ride.riderId!==userId){
+            return res.status(401).json({
+                success:false,
+                message:"This ride doesnot belong to you"
+            })
         }
 
         return res.status(200).json({
@@ -328,11 +344,10 @@ const getDriverRequests = async (req, res) => {
                 })
             }
 
-        const requests =
-            await RideRequest.find({
-                driverId,
-                status: "PENDING"
-            });
+      const requests = await RideRequest.find({
+       driverId,
+        status: "PENDING"
+     }).populate("rideId", "pickup.address dropoff estimatedFare distanceKm");
 
         return res.status(200).json({
             success: true,

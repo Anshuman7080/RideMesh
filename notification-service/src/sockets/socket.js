@@ -65,10 +65,9 @@ const initializeSocket = (server) => {
         async(data)=>{
             try{
 
-                const {rideId,latitude,longitude}=data;
+                const {latitude,longitude}=data;
 
-                console.log("hittin location-update",latitude,longitude,socket.userId)
-            
+                console.log("hittin location-update",latitude,longitude)
 
              await redisClient.geoAdd("drivers:geo", {
                 longitude: parseFloat(longitude),
@@ -76,38 +75,6 @@ const initializeSocket = (server) => {
                 member: String(socket.userId),
             });
 
-            console.log("coming after redis client");
-               
-            if (!rideId ) {
-                console.log("no ride found or invalid ride data");
-                return;
-            }
-
-            const riderId = await redisClient.get(`ride-Created:${rideId}`);
-
-                    if (!riderId) {
-                    return res.status(404).json({
-                        success: false,
-                        message: "Ride not found or expired"
-                    });
-                    }
-
-                    console.log("Fetched riderId:", riderId);
-
-
-                const riderSocketRoom = `rider:${riderId}`;
-                // console.log("riderID",ride.riderId)
-
-                io.to(riderSocketRoom)
-                .emit(
-                    "driver-location-updated",
-                    {
-                        rideId,
-                        driverId:socket.userId,
-                        latitude,
-                        longitude
-                    }
-                )
 
             }catch(error){
              console.log("Location update Error",error);
@@ -115,6 +82,37 @@ const initializeSocket = (server) => {
         }
      )
 
+     socket.on(
+        "location-update-forRide",
+        async(data)=>{
+             try{
+                const {riderId,latitude,longitude}=data;
+              console.log("rideId,latitude,longitude on location update for ride",riderId,latitude,longitude);
+
+              if(!riderId){
+                console.log("rider Id is not present");
+                return;
+              }
+                
+            const riderSocketRoom = `rider:${riderId}`;    
+
+            io.to(riderSocketRoom)
+                .emit(
+                    "driver-location-updated",
+                    {
+                        riderId,
+                        driverId:socket.userId,
+                        latitude,
+                        longitude
+                    }
+                )
+
+             }catch(error){
+            console.log("Error in location update for ride",error);
+             }
+
+        }
+     )
         
         socket.on(
             "disconnect",

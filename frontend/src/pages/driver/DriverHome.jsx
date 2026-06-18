@@ -13,6 +13,7 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import StatusBadge from '../../components/StatusBadge';
 import SidePanel from '../../components/SidePanel';
+import showToastWithRedirect  from  "../../components/Toast"
 import BottomSheet from '../../components/BottomSheet';
 
 // Fix Leaflet icons
@@ -112,7 +113,6 @@ useEffect(() => {
       }));
 
       socket.emit('location-update', {
-        rideId: '', 
         latitude: lat,
         longitude: lng,
       });
@@ -126,21 +126,7 @@ useEffect(() => {
 }, [isOnline, user, socket, dispatch]);
 
 
-useEffect(() => {
-  if (!socket?.connected || !user) return;
 
-  console.log('[Driver] Listening for new ride requests');
-
-  const handleNewRideRequest = (data) => {
-    console.log('[Socket] new-ride-request:', data);
-  };
-
-  socket.on('new-ride-request', handleNewRideRequest);
-
-  return () => {
-    socket.off('new-ride-request', handleNewRideRequest);
-  };
-}, [socket?.connected, user]);
 
 
   const cleanupOnlineServices = () => {

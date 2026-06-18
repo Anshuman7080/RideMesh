@@ -27,3 +27,25 @@ export const rideEndPoints = {
   COMPLETE_RIDE: (rideId) => BASEURL + `/api/v1/rides/${rideId}/complete`,
   DRIVER_CANCEL: (rideId) => BASEURL + `/api/v1/rides/${rideId}/driver-cancel`,
 };
+
+
+export const driverEndPoints = {
+
+ 
+  APPLY_DRIVER: BASEURL + "/api/v1/drivers/apply",
+
+  
+  GET_DRIVER_PROFILE: BASEURL + "/api/v1/drivers/profile",
+  UPDATE_DRIVER_PROFILE: BASEURL + "/api/v1/drivers/profile",
+  
+  TOGGLE_AVAILABILITY: BASEURL + "/api/v1/drivers/availability",
+
+  APPROVE_DRIVER: (driverId) => BASEURL + `/api/v1/drivers/approve/${driverId}`,
+
+  GETDRIVERDETAILFORRIDE:(driverId)=>BASEURL+ `/api/v1/drivers/${driverId}/ride`,
+
+};
+
+export const riderEndPoints={
+  GETRIDERDETAILFORRIDE:(riderId)=> BASEURL +  `/api/v1/riders/${riderId}/ride`
+}

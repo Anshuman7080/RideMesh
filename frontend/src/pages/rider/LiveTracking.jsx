@@ -14,6 +14,7 @@ import Modal from '../../components/Modal';
 
 import { useSocket } from '../../context/SocketProvider';
 import { getRiderProfile } from '../../services/operations/riderAPI';
+import { getDriverDetailForRide } from '../../services/operations/driverAPI';
 
 const pickupIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
@@ -65,7 +66,7 @@ const LiveTracking=()=>{
     const [eta,setEta]=useState('Locating driver...');
     const [showCancelModal,setShowCancelModal]=useState(false);
     const [driver,setDriver]=useState({});
-
+    const [driverId,setDriverId]=useState(null);
     const [cancelReason,setCancelReason]=useState('');
 
     const {token}=useSelector((state)=>state.auth);
@@ -80,24 +81,39 @@ const LiveTracking=()=>{
     return [currentRide.dropoff.latitude, currentRide.dropoff.longitude];
   }, [currentRide?.dropoff?.latitude, currentRide?.dropoff?.longitude]);
 
-    // const getDriverDetails=(driverId)=>{
-    //     return {
-    //   name: 'Rohan Kumar',
-    //   rating: '4.8★',
-    //   trips: '1,420 trips',
-    //   vehicle: 'White Suzuki Swift Dzire',
-    //   number: 'UP65-CC-4321',
-    //   avatar: 'R',
-    // };
-    // }
-
- //  const driver=getDriverDetails(currentRide?.driverId);
 
 
+    useEffect(()=>{
+       setDriverId(currentRide?.driverId);
+    },[currentRide]);
 
- useEffect(()=>{
+useEffect(() => {
+  if(!driverId)return;
+     if(!token)return
 
- },[]);
+  const fetchDriverDetail = async () => {
+    try {
+      ;
+      const res = await dispatch(getDriverDetailForRide({driverId, token }));
+
+      setDriver({
+        name: res?.name,
+      rating: res?.rating+'★',
+      trips: res?.totalTrips,
+      vehicle: res?.vehicleType,
+      number: res?.vehicleNumber,
+      avatar: 'D',
+      })
+
+    } catch (err) {
+      console.log("err in useEffect for getDriverDetailForRide...", err);
+    }
+  };
+
+  fetchDriverDetail();
+}, [driverId, token, dispatch]);
+
+
 
    useEffect(()=>{
     if (!rideId) return; 
@@ -107,12 +123,11 @@ const LiveTracking=()=>{
     dispatch(getRideDetails({rideId,token}));
    },[currentRide, rideId, token]);
 
-   // Fetch ride details on mount and poll every 5s
 
-   useEffect(()=>{
-    if(!rideId)return;
-    dispatch(getRideDetails(rideId));
-   },[rideId,dispatch]);
+  //  useEffect(()=>{
+  //   if(!rideId)return;
+  //   dispatch(getRideDetails(rideId));
+  //  },[rideId,dispatch]);
 
    useEffect(()=>{
     if(!currentRide)return;
@@ -191,10 +206,10 @@ const handleCancelSubmit = () => {
 
 
 
-  // Draw appropriate route lines based on state
-  // const routePoints = currentRide?.status === 'IN_PROGRESS' 
-  //   ? [driverCoord || pickupPos, dropoffPos]
-  //   : [driverCoord || pickupPos, pickupPos];
+  
+  const routePoints = currentRide?.status === 'IN_PROGRESS' 
+    ? [driverCoord || pickupPos, dropoffPos]
+    : [driverCoord || pickupPos, pickupPos];
 
     const routeLineForPickup=[driverCoord,pickupPos];
     const routeLineForDropoff=[pickupPos,dropoffPos]
@@ -281,8 +296,7 @@ const renderInfoPanel = () => (
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <FitBounds p1={pickupPos} p2={dropoffPos} p3={driverCoord} />
-          <Polyline positions={routeLineForPickup} color=" #ADD8E6" weight={4} opacity={0.7} />
-          <Polyline positions={routeLineForDropoff} color="#008000" weight={4} opacity={0.7} />
+         
           
           <Marker position={pickupPos} icon={pickupIcon}>
             <Popup><span className="text-xs font-bold text-accent-green">Pickup Spot</span></Popup>
@@ -304,7 +318,7 @@ const renderInfoPanel = () => (
           )}
 
      
-          {/* {driverCoord && <Polyline positions={driverCoord} color="#276EF1" weight={4} opacity={0.75} dashArray="5, 10" />} */}
+          {driverCoord && <Polyline positions={routePoints} color="#276EF1" weight={4} opacity={0.75} dashArray="5, 10" />}
         </MapContainer>
       </div>
 

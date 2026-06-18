@@ -558,6 +558,13 @@ const rejectRide = async (req, res) => {
 
         const driverId = req.headers["x-user-id"];
 
+        if(!driverId){
+            return res.status(401).json({
+                success:false,
+                message:"Unauthorized"
+            })
+        }
+
         const request = await RideRequest.findOne({
             rideId,
             driverId,

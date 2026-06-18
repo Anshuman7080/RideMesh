@@ -3,7 +3,7 @@ const router=express.Router()
 
 const {applyDriver,getDriverProfile,updateDriverProfile,
     toggleAvailability,approveDriver,getAvailableDrivers,updateAvailability,
-    updateDriverRating
+    updateDriverRating,getDriverDetailForRide
 }=require("../controllers/driverController")
 
 const adminMiddleware=require("../middleware/adminMiddleware")
@@ -24,6 +24,6 @@ router.patch("/approve/:driverId",adminMiddleware, approveDriver);
 
 router.patch("/internal/rating/:driverId",updateDriverRating);
 
-
+router.get("/:driverId/ride",getDriverDetailForRide);
 
 module.exports = router;

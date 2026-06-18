@@ -16,7 +16,7 @@ const paymentProxy=createProxyMiddleware({
             
             if (req.user){
                 console.log("req.user is",req.user);
-                proxyReq.setHeader("x-user-id",req.user.userId)
+                proxyReq.setHeader("x-user-id",req.user.id)
                 proxyReq.setHeader("x-user-role",req.user.role)
                 proxyReq.setHeader("x-user-name",req.user.name)
             }

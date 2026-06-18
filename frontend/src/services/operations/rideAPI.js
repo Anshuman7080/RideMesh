@@ -11,9 +11,14 @@ import {apiConnector } from "../apiconnector"
 import { useNavigate } from "react-router-dom";
 
 import {rideEndPoints} from "../apis";
+import { driverEndPoints } from "../apis";
 const {CREATE_RIDE,GET_DRIVER_REQUESTS,ACCEPT_RIDE,
   GET_RIDE_DETAILS,
+  CANCEL_RIDE,RATE_DRIVER,RATE_RIDER,REJECT_RIDE
+  ,DRIVER_ARRIVED,START_RIDE,COMPLETE_RIDE,DRIVER_CANCEL
 }=rideEndPoints
+
+const {GETDRIVERDETAILFORRIDE} ={driverEndPoints};
 
 export const createRide =({ pickup, dropoff, distanceKm,token}) =>
   async (dispatch) => {
@@ -71,7 +76,6 @@ export const createRide =({ pickup, dropoff, distanceKm,token}) =>
     }
   };
 
-
 export const getDriverRequests = (token) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
@@ -116,8 +120,7 @@ export const getDriverRequests = (token) => {
 };
 
 
-export const acceptRide =
-  (rideId,token,navigate) => async (dispatch) => {
+export const acceptRide =(rideId,token,navigate) => async (dispatch) => {
     dispatch(setLoading(true));
 
     try {
@@ -159,11 +162,15 @@ export const acceptRide =
   };
 
 
-export const cancelRide =
-  ({ rideId, reason }) =>
+export const cancelRide =({ rideId, reason ,token}) =>
   async (dispatch) => {
     try {
-      await apiConnector(`/rides/${rideId}/cancel`, { reason });
+    const response =  await apiConnector('PATCH',CANCEL_RIDE(rideId), { reason },{
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+    });
+
+    console.log("Response of cancelling ride",response);
 
       dispatch(setBookingStatus("cancelled"));
 
@@ -178,6 +185,7 @@ export const cancelRide =
 
       dispatch(setRideHistory(updated));
     } catch (error) {
+      console.log("Error in cancelling ride",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -187,16 +195,22 @@ export const cancelRide =
     }
   };
 
-export const rateDriver =
-  ({ rideId, rating }) =>
+
+
+export const rateDriver =({ rideId, rating ,token}) =>
   async (dispatch) => {
     try {
-      await apiConnector(`/rides/${rideId}/rate-driver`, {
+   const response=   await apiConnector("POST", RATE_DRIVER(rideId),{
         rating,
-      });
+      },
+        {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+      );
 
-      const history =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
+      console.log("response of rating driver",response);
+      const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
 
       const updated = history.map((r) =>
         r._id === rideId
@@ -206,6 +220,8 @@ export const rateDriver =
 
       dispatch(setRideHistory(updated));
     } catch (error) {
+
+      console.log("error in rating driver",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -215,45 +231,50 @@ export const rateDriver =
     }
   };
 
-export const getNearbyDrivers =
-  ({ latitude, longitude }) =>
-  async (dispatch) => {
+
+// export const getNearbyDrivers =
+//   ({ latitude, longitude }) =>
+//   async (dispatch) => {
+//     try {
+//       const response = await apiConnector(
+//         "/rides/drivers/nearby",
+//         {
+//           params: { latitude, longitude },
+//         }
+//       );
+
+//       const rawDrivers = response.data.drivers || [];
+
+//       const drivers = rawDrivers.map((d) => ({
+//         driverId: Array.isArray(d) ? d[0] : d,
+//         distanceKm: Array.isArray(d) ? Number(d[1]) : 0,
+//       }));
+
+//       dispatch(setNearbyDrivers(drivers));
+//     } catch (error) {
+//       dispatch(
+//         setError(
+//           error.response?.data?.message ||
+//             "Failed to fetch nearby drivers"
+//         )
+//       );
+//     }
+//   };
+
+
+
+export const rejectRide =({rideId,token}) => async (dispatch) => {
     try {
-      const response = await apiConnector(
-        "/rides/drivers/nearby",
-        {
-          params: { latitude, longitude },
-        }
-      );
+    const response=  await apiConnector(`PATCH`,REJECT_RIDE(rideId),{},{
+      
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      
+      });
 
-      const rawDrivers = response.data.drivers || [];
+      console.log("response of rejecting ride.....",response);
 
-      const drivers = rawDrivers.map((d) => ({
-        driverId: Array.isArray(d) ? d[0] : d,
-        distanceKm: Array.isArray(d) ? Number(d[1]) : 0,
-      }));
-
-      dispatch(setNearbyDrivers(drivers));
-    } catch (error) {
-      dispatch(
-        setError(
-          error.response?.data?.message ||
-            "Failed to fetch nearby drivers"
-        )
-      );
-    }
-  };
-
-
-
-export const rejectRide =
-  (rideId) => async (dispatch) => {
-    try {
-      await apiConnector(`/rides/${rideId}/reject`);
-
-      const current =
-        JSON.parse(localStorage.getItem("driverRequests")) ||
-        [];
+      const current =JSON.parse(localStorage.getItem("driverRequests")) || [];
 
       const filtered = current.filter(
         (r) => r.rideId !== rideId
@@ -261,6 +282,7 @@ export const rejectRide =
 
       dispatch(setDriverRequests(filtered));
     } catch (error) {
+      console.log("Error in rejecting ride",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -270,15 +292,24 @@ export const rejectRide =
     }
   };
 
-export const driverArrived =
-  (rideId) => async (dispatch) => {
+
+
+export const driverArrived =({rideId,token}) => async (dispatch) => {
     try {
-      const response = await apiConnector(
-        `/rides/${rideId}/arrive`
-      );
+      const response = await apiConnector("PATCH",DRIVER_ARRIVED(rideId),{},
+                 {
+                   Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json"
+                 }
+             );
+
+      console.log("reponse of driverArrived",response);
 
       dispatch(setCurrentRide(response.data.ride));
+
     } catch (error) {
+      console.log("Error in marking driver arrived",error);
+
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -288,15 +319,21 @@ export const driverArrived =
     }
   };
 
-export const startRide =
-  (rideId) => async (dispatch) => {
+export const startRide =({rideId,token}) => async (dispatch) => {
     try {
-      const response = await apiConnector(
-        `/rides/${rideId}/start`
+      const response = await apiConnector("PATCH",START_RIDE(rideId),{},
+        {
+           Authorization: `Bearer ${token}`,
+           "Content-Type": "application/json"
+        }
       );
+
+      console.log("response of startRide",response);
 
       dispatch(setCurrentRide(response.data.ride));
     } catch (error) {
+
+      console.log("error in starting ride",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -306,12 +343,17 @@ export const startRide =
     }
   };
 
-export const completeRide =
-  (rideId) => async (dispatch) => {
+
+
+export const completeRide = ({rideId,token}) => async (dispatch) => {
     try {
-      const response = await apiConnector(
-        `/rides/${rideId}/complete`
+      const response = await apiConnector("PATCH",COMPLETE_RIDE(rideId),{},{
+         Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+      } 
       );
+
+       console.log("response of completeRide",response);
 
       const ride = response.data.ride;
 
@@ -334,6 +376,8 @@ export const completeRide =
 
       dispatch(setRideHistory(updated));
     } catch (error) {
+      console.log("Error in completing ride",error);
+      
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -343,16 +387,19 @@ export const completeRide =
     }
   };
 
-export const driverCancelRide =
-  ({ rideId, reason }) =>
+
+
+export const driverCancelRide = ({ rideId, reason,token }) =>
   async (dispatch) => {
     try {
-      await apiConnector(`/rides/${rideId}/driver-cancel`, {
-        reason,
+    const res=  await apiConnector("PATCH",DRIVER_CANCEL(rideId),{reason}, {
+           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
       });
+     
+      console.log("res of driver cancelling ride",res);
 
-      const history =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
+      const history = JSON.parse(localStorage.getItem("rideHistory")) || [];
 
       const updated = history.map((r) =>
         r._id === rideId
@@ -362,6 +409,7 @@ export const driverCancelRide =
 
       dispatch(setRideHistory(updated));
     } catch (error) {
+      console.log("Errr in cancelling ride by driver",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -371,16 +419,18 @@ export const driverCancelRide =
     }
   };
 
-export const rateRider =
-  ({ rideId, rating }) =>
-  async (dispatch) => {
+
+export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
     try {
-      await apiConnector(`/rides/${rideId}/rate-rider`, {
-        rating,
+     const response= await apiConnector("PATCH",RATE_RIDER(rideId), {
+        rating  
+      },{
+         Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
       });
 
-      const history =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
+      console.log("res of rating rider",response);
+      const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
 
       const updated = history.map((r) =>
         r._id === rideId
@@ -390,6 +440,8 @@ export const rateRider =
 
       dispatch(setRideHistory(updated));
     } catch (error) {
+
+      console.log("Error in rating rider",error);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -399,8 +451,7 @@ export const rateRider =
     }
   };
 
-  export const getRideDetails=
-  ({rideId,token})=>async(dispatch)=>{
+export const getRideDetails=({rideId,token})=>async(dispatch)=>{
 
     try{
 
@@ -424,3 +475,6 @@ export const rateRider =
 
     }
   }
+
+
+ 

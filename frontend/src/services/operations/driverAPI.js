@@ -9,6 +9,10 @@ import {
   updateAvailability,
 } from "../../slices/driverSlice";
 
+import { driverEndPoints  } from "../apis";
+
+const {GET_DRIVER_PROFILE,GETDRIVERDETAILFORRIDE}=driverEndPoints;
+
 
 export const applyDriver =
   ({
@@ -42,18 +46,28 @@ export const applyDriver =
 
 export const getDriverProfile = () => async (dispatch) => {
  
-
+   dispatch(setLoading(true));
+   dispatch(setError(null));
   try {
-    const response = await apiConnector("/drivers/profile");
+    const response = await apiConnector("GET",GET_DRIVER_PROFILE,{},{
+
+    });
+
+    console.log("response of getDriverProfile....",response);
 
     const driver = response.data.driver;
 
+    console.log("driver is",driver);
 
+    return driver;
+  
   } catch (error) {
-
+  console.log("error in getting  driverProfile",error);
+  dispatch(setProfile(null));
+  dispatch(setIsApproved(false));
 
   } finally {
-   
+   dispatch(setLoading(false));
   }
 };
 
@@ -96,3 +110,26 @@ export const toggleAvailability =
       
     }
   };
+
+
+export const  getDriverDetailForRide=({driverId,token})=>
+    async(dispatch)=>{
+      try{
+        const response=await apiConnector('GET',GETDRIVERDETAILFORRIDE(driverId),{},{
+        
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        
+        })
+
+        console.log("response for getDriverDetailForRide",response);
+
+        return response?.data?.driverDetail;
+
+      }
+      catch(error){
+        console.log("Error in gettingDriverDetailForRide...",error);
+        return null;
+      }
+    }
+

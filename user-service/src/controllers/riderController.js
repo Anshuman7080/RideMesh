@@ -250,6 +250,43 @@ const updateRiderRating = async (req, res) => {
 };
 
 
+const getRiderDetailForRide = async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const { riderId } = req.params;
+
+    if (!riderId) {
+      return res.status(400).json({
+        success: false,
+        message: "riderId is missing"
+      });
+    }
+
+    const riderDetail = await Rider.findOne({userId:riderId});
+
+    return res.status(200).json({
+      success: true,
+      riderDetail
+    });
+
+  } catch (error) {
+    console.log("Error in getRiderDetailForRide ...", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
 
 
-module.exports={ createRider, getRiderDetails, updateRiderDetails, deleteRider,updateRiderRating }
+
+
+module.exports={ createRider, getRiderDetails, updateRiderDetails, deleteRider,updateRiderRating,getRiderDetailForRide }

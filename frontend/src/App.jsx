@@ -30,6 +30,7 @@ import DriverCompleted from './pages/driver/DriverCompleted';
 import DriverEarnings from './pages/driver/DriverEarnings';
 import DriverProfile from "./pages/driver/DriverProfile"
 import DriverHome from "./pages/driver/DriverHome"
+import ActiveRide from './pages/driver/ActiveRide';
 import { SocketProvider } from './context/SocketProvider';
 import { ToastContainer } from "react-toastify";
 import { useSocket } from './context/SocketProvider';
@@ -230,9 +231,9 @@ function App() {
         <Route
           path="/rider/completed/:rideId"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
+            <ProtectedRoute allowedRoles={['rider']}>
               <Completed />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 
@@ -265,41 +266,41 @@ function App() {
       <Route
           path="/rider/history"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="history">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="history">
                 <RideHistory />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+              </RiderLayout>
+           </ProtectedRoute>
           }
         />
         <Route
           path="/rider/history/:rideId"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="history">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="history">
                 <RideDetail />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+              </RiderLayout>
+             </ProtectedRoute>
           }
         />
         <Route
           path="/rider/profile"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="profile">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="profile">
                 <RiderProfile />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+              </RiderLayout>
+             </ProtectedRoute>
           }
         />
         <Route
           path="/rider/notifications"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-            //   <RiderLayout activeTabId="notifications">
+            <ProtectedRoute allowedRoles={['rider']}>
+              <RiderLayout activeTabId="notifications">
                 <Notifications />
-            //   </RiderLayout>
-            // </ProtectedRoute>
+               </RiderLayout>
+            </ProtectedRoute>
           }
         />
 
@@ -307,17 +308,17 @@ function App() {
         <Route
           path="/driver/apply"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
+            <ProtectedRoute allowedRoles={['rider']}>
               <DriverApply />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/driver/apply/submitted"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
+            <ProtectedRoute allowedRoles={['rider']}>
               <ApplySubmitted />
-            // </ProtectedRoute>
+             </ProtectedRoute>
           }
         />
 
@@ -335,55 +336,55 @@ function App() {
        <Route
           path="/driver/requests"
           element={
-            // <ProtectedRoute allowedRoles={['driver']}>
-            //   <DriverLayout>
+            <ProtectedRoute allowedRoles={['driver']}>
+              <DriverLayout>
                 <DriverRequests />
-            //   </DriverLayout>
-            // </ProtectedRoute>
+              </DriverLayout>
+           </ProtectedRoute>
           }
         />
 
-{/* 
+
         <Route
           path="/driver/active/:rideId"
           element={
-            // <ProtectedRoute allowedRoles={['driver']}>
-            //   <DriverLayout>
+            <ProtectedRoute allowedRoles={['driver']}>
+              <DriverLayout>
                 <ActiveRide />
-            //   </DriverLayout>
-            // </ProtectedRoute>
+               </DriverLayout>
+             </ProtectedRoute>
           }
-        /> */}
+        />
 
 
          <Route
           path="/driver/completed"
           element={
-            // <ProtectedRoute allowedRoles={['driver']}>
+            <ProtectedRoute allowedRoles={['driver']}>
               <DriverCompleted />
-            // </ProtectedRoute>
+             </ProtectedRoute>
           }
         />
 
         <Route
           path="/driver/earnings"
           element={
-            // <ProtectedRoute allowedRoles={['driver']}>
-            //   <DriverLayout>
+            <ProtectedRoute allowedRoles={['driver']}>
+              <DriverLayout>
                 <DriverEarnings />
-            //   </DriverLayout>
-            // </ProtectedRoute>
+               </DriverLayout>
+             </ProtectedRoute>
           }
         />
 
         <Route
           path="/driver/profile"
           element={
-            // <ProtectedRoute allowedRoles={['driver']}>
-            //   <DriverLayout>
+            <ProtectedRoute allowedRoles={['driver']}>
+              <DriverLayout>
                 <DriverProfile />
-            //   </DriverLayout>
-            // </ProtectedRoute>
+               </DriverLayout>
+            </ProtectedRoute>
           }
         />
 

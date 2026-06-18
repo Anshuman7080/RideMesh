@@ -7,7 +7,8 @@ import {
 } from "../../slices/riderSlice";
 
 import { updateUserProfile } from "../../slices/authSlice";
-
+import { riderEndPoints } from "../apis";
+const {GETRIDERDETAILFORRIDE}=riderEndPoints
 
 export const getRiderProfile = () => async (dispatch) => {
   dispatch(setLoading(true));
@@ -63,3 +64,25 @@ export const deactivateRider = () => async (dispatch) => {
     dispatch(setLoading(false));
   }
 };
+
+
+export const  getRiderDetailForRide=({riderId,token})=>
+    async(dispatch)=>{
+      try{
+        const response=await apiConnector('GET',GETRIDERDETAILFORRIDE(riderId),{},{
+        
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        
+        })
+
+        console.log("response for getRiderDetailForRide",response);
+
+        return response?.data?.riderDetail;
+
+      }
+      catch(error){
+        console.log("Error in gettingRiderDetailForRide...",error);
+        return null;
+      }
+    }

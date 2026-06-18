@@ -370,6 +370,44 @@ const updateDriverRating = async (req, res) => {
 };
 
 
+const getDriverDetailForRide = async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const { driverId } = req.params;
+
+    if (!driverId) {
+      return res.status(400).json({
+        success: false,
+        message: "DriverId is missing"
+      });
+    }
+
+    const driverDetail = await Driver.findOne({userId:driverId});
+
+    return res.status(200).json({
+      success: true,
+      driverDetail
+    });
+
+  } catch (error) {
+    console.log("Error in getDriverDetailForRide ...", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
+
 
 module.exports = {
   applyDriver,
@@ -379,5 +417,6 @@ module.exports = {
   approveDriver,
   getAvailableDrivers,
   updateAvailability,
-  updateDriverRating
+  updateDriverRating,
+  getDriverDetailForRide
 };

@@ -144,7 +144,7 @@ export const login =({ email, password }) =>
       const userObj = data.user;
 
       const userToken =
-        data.token ||
+        userObj.token ||
         data.accessToken ||
         "dev_token_placeholder";
 

@@ -9,23 +9,33 @@ import {
 } from "../../slices/rideSlice";
 import {apiConnector } from "../apiconnector"
 
+import {rideEndPoints} from "../apis";
+const {CREATE_RIDE}=rideEndPoints
 
-
-export const createRide =
-  ({ pickup, dropoff, distanceKm }) =>
+export const createRide =({ pickup, dropoff, distanceKm,token}) =>
   async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     dispatch(setBookingStatus("searching"));
 
     try {
-      const response = await apiConnector("/rides/create", {
-        pickup,
-        dropoff,
-        distanceKm,
-      });
+      const response = await apiConnector(
+        "POST",
+        CREATE_RIDE,
+        {
+          pickup,
+          dropoff,
+          distanceKm,
+        },
+        {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      );
 
-      const ride = response.data.ride;
+      console.log("response of creating ride",response);
+      const ride = response?.data?.ride;
+      
 
       dispatch(setCurrentRide(ride));
 
@@ -45,6 +55,7 @@ export const createRide =
 
       dispatch(setRideHistory(updatedHistory));
     } catch (error) {
+      console.log("error in creating ride",error);
       dispatch(
         setError(
           error.response?.data?.message ||

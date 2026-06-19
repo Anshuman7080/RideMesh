@@ -11,31 +11,36 @@ const Completed=()=>{
     const navigate=useNavigate();
     const dispatch=useDispatch();
 
+    console.log("rideId is",rideId);
    const {currentRide,loading}=useSelector((state)=>state.ride);
+
    const [rating,setRating]=useState(5);
    const [rated,setRated]=useState(false);
+   const {token}=useSelector((state)=>state.auth);
 
    useEffect(()=>{
-    dispatch(getRideDetails(rideId));
+    dispatch(getRideDetails({rideId,token}));
    },[rideId,dispatch]);
 
 
    const handleRatingSubmit=(selectedRating)=>{
+
     setRating(selectedRating);
-    dispatch(rateDriver({riderId,rating:selectedRating}))
-    .unwrap()
-    .then(()=>{
-        setRated(true);
-        alert('Thank you for your rating!');
-    })
-    .catch((err)=>{
-        alert(err || 'Failed to submit rating');
-    })
+
+    dispatch(rateDriver({rideId,rating:selectedRating,token}))
+    // .unwrap()
+    // .then(()=>{
+    //     setRated(true);
+    //     alert('Thank you for your rating!');
+    // })
+    // .catch((err)=>{
+    //     alert(err || 'Failed to submit rating');
+    // })
    }
 
 
    const handlePayNow=()=>{
-    navigate('/rider/payment/${rideId}');
+    navigate(`/rider/payment/${rideId}`);
    }
 
    if(!currentRide)return null;

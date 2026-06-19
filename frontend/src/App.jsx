@@ -34,6 +34,7 @@ import ActiveRide from './pages/driver/ActiveRide';
 import { SocketProvider } from './context/SocketProvider';
 import { ToastContainer } from "react-toastify";
 import { useSocket } from './context/SocketProvider';
+
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
   const dispatch=useDispatch();
@@ -105,7 +106,7 @@ const DriverLayout = ({ children }) => {
   },[socket,currentRide?.riderId]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 text-white flex flex-col font-sans">
       <nav className="h-16 bg-black border-b border-gray-900 flex items-center justify-between px-6">
         <span className="font-extrabold text-lg text-accent-blue tracking-wider">RideMesh Driver</span>
         <button 
@@ -358,7 +359,7 @@ function App() {
 
 
          <Route
-          path="/driver/completed"
+          path="/driver/completed/:rideId"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
               <DriverCompleted />

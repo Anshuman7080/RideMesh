@@ -184,7 +184,7 @@ async function handleEvent(
             emitToUser(
                 "rider",
                 data.riderId,
-                "driver_arrived",
+                "driver-arrived",
                 {
                     rideId:
                         data.rideId,

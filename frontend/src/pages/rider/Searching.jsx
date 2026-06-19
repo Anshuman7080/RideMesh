@@ -14,6 +14,7 @@ const Searching = () => {
   const {socket}=useSocket();
 
   const { currentRide, loading } = useSelector((state) => state.ride);
+  const {token}=useSelector((state)=>state.auth);
   const pollingRef = useRef(null);
 
  
@@ -25,22 +26,16 @@ const Searching = () => {
 
  
 
-  const handleCancel = () => {
+  const handleCancel = async() => {
     if (!currentRide || !currentRide._id) return;
     
     if (window.confirm('Are you sure you want to cancel this ride request?')) {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-      
-       dispatch(cancelRide({ rideId: currentRide._id, reason: 'Cancelled by rider' }))
-        .unwrap()
-        .then(() => {
-          alert('Ride request cancelled.');
-          dispatch(resetBookingState());
-          navigate('/rider/home');
-        })
-        .catch((err) => {
-          alert(err || 'Failed to cancel ride');
-        });
+     
+      const res=await dispatch(cancelRide({ rideId: currentRide._id, reason: 'Cancelled by rider',token }))
+      console.log("res on searching page",res);
+      dispatch(resetBookingState());
+      navigate('/rider/home');
+        
     }
   };
 
@@ -96,7 +91,7 @@ const Searching = () => {
       </div>
 
      
-      <div className="w-full max-w-xs mx-auto pb-8 animate-slide-up">
+      <div className="w-full max-w-xs mx-auto pb-8 pt-3 animate-slide-up">
         <Button
           variant="outline"
           fullWidth

@@ -166,16 +166,16 @@ useEffect(() => {
 const handleCancelSubmit = () => {
     if (!rideId) return;
 
-    dispatch(cancelRide())
-      .unwrap()
-      .then(() => {
-        setShowCancelModal(false);
-        alert('Ride cancelled successfully.');
-        navigate('/rider/home');
-      })
-      .catch((err) => {
-        alert(err || 'Failed to cancel ride');
-      });
+    dispatch(cancelRide({rideId,cancelReason,token}))
+      // .unwrap()
+      // .then(() => {
+      //   setShowCancelModal(false);
+      //   alert('Ride cancelled successfully.');
+      //   navigate('/rider/home');
+      // })
+      // .catch((err) => {
+      //   alert(err || 'Failed to cancel ride');
+      // });
   };
 
 // useEffect(() => {

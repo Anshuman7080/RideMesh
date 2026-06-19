@@ -5,7 +5,7 @@ import { ArrowLeft, Clock, MapPin, Check, X, AlertTriangle } from 'lucide-react'
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Loader from '../../components/Loader';
-import { getDriverRequests,acceptRide } from '../../services/operations/rideAPI';
+import { getDriverRequests,acceptRide, rejectRide } from '../../services/operations/rideAPI';
 
 const DriverRequests=()=>{
     const navigate=useNavigate();
@@ -37,7 +37,7 @@ const handleAccept=(rideId)=>{
 }
 
 const handleReject=(rideId)=>{
-
+    dispatch(rejectRide({rideId,token}));
 }
 
 
@@ -64,10 +64,10 @@ const mockRequests = [
     }
 ];
 
-const displayList=detailedRequests.length > 0 ? detailedRequests : mockRequests;
+const displayList=detailedRequests;
 
-return (
-    <div className="max-w-2xl mx-auto w-full px-4 py-8 font-sans space-y-6">
+ return (
+    <div className="max-w-2xl mx-auto  w-full px-4 py-8 font-sans space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -82,7 +82,7 @@ return (
         </div>
       </div>
 
- 
+      {/* Global Error Banner */}
       {error && (
         <div className="p-3.5 rounded-lg bg-red-50 border border-red-100 flex items-start gap-2.5 text-accent-red text-xs font-medium animate-fade-in">
           <AlertTriangle size={16} className="shrink-0 mt-0.5" />
@@ -90,6 +90,7 @@ return (
         </div>
       )}
 
+      {/* Loading state indicator */}
       {(loading || fetchingDetails) && detailedRequests.length === 0 ? (
         <Loader message="Fetching incoming requests details..." />
       ) : (
@@ -112,7 +113,7 @@ return (
                 className="border-gray-150 hover:border-gray-300 shadow-sm"
               >
                 <div className="space-y-4">
-               
+                  {/* Fare & distance header */}
                   <div className="flex justify-between items-center pb-2.5 border-b border-gray-100">
                     <span className="text-xs font-extrabold text-primary">₹{req.details?.estimatedFare}</span>
                     <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-accent-blue border border-blue-100">
@@ -120,7 +121,7 @@ return (
                     </span>
                   </div>
 
-                 
+                  {/* Route location snippets */}
                   <div className="space-y-3 pl-1 border-l-2 border-gray-100">
                     <div className="flex items-start gap-2.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent-green mt-1 shrink-0"></div>
@@ -138,6 +139,7 @@ return (
                     </div>
                   </div>
 
+                  {/* Accept / Reject Buttons */}
                   <div className="grid grid-cols-2 gap-3.5 pt-2 border-t border-gray-50">
                     <Button
                       variant="outline"
@@ -168,7 +170,6 @@ return (
       )}
     </div>
   );
-
 }
 
 

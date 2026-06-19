@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircle2, Star, DollarSign, ArrowRight, User } from 'lucide-react';
 // import { rateRider, resetBookingState } from '../../services/operations/driverAPI';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import { getRideDetails, rateRider } from '../../services/operations/rideAPI';
+import { resetBookingState } from '../../slices/rideSlice';
 
 const DriverCompleted=()=>{
+  const {rideId}=useParams();
     const navigate=useNavigate();
     const dispatch=useDispatch();
 
     const {currentRide,loading}=useSelector((state)=>state.ride);
     const [rating,setRating]=useState(5);
     const [rated,setRated]=useState(false);
-    
-    const handleRatingSubmit=()=>{
+    const {token}=useSelector((state)=>state.auth);
 
+    console.log("currentRide is",currentRide);
+
+      useEffect(()=>{
+        dispatch(getRideDetails({rideId,token}));
+       },[rideId,dispatch]);
+    
+    const handleRatingSubmit=(selectedRating)=>{
+        setRating(selectedRating);
+       
+           dispatch(rateRider({rideId,rating:selectedRating,token}))
     }
 
     const handleContinue=()=>{
-
+           dispatch(resetBookingState());
+          navigate('/driver/home');
     }
 
     const fare=currentRide ? currentRide.estimatedFare :130;
     const distance=currentRide ? currentRide.distanceKm : 5.8;
 
      return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen text-white flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md space-y-6 text-center animate-scale-in">
         
         <div className="relative mx-auto flex items-center justify-center">
@@ -38,7 +51,7 @@ const DriverCompleted=()=>{
 
         {/* Heading */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-extrabold tracking-tight">Trip Completed!</h1>
+          <h1 className="text-2xl text-gray-950 font-extrabold tracking-tight">Trip Completed!</h1>
           <p className="text-xs text-gray-400">Excellent job partner, passengers arrived safely.</p>
         </div>
 
@@ -93,7 +106,7 @@ const DriverCompleted=()=>{
               fullWidth
               size="lg"
               onClick={handleContinue}
-              className="bg-white text-primary hover:bg-gray-200 font-bold flex items-center justify-center gap-1.5 py-3.5"
+              className=" text-primary bg-gray-200 font-bold flex items-center justify-center gap-1.5 py-3.5"
               icon={ArrowRight}
             >
               Continue to Dashboard

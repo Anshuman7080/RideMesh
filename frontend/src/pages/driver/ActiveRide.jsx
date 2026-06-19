@@ -174,7 +174,7 @@ const ActiveRide=()=>{
     };
 
     const handleComplete=()=>{
-        dispatch(completeRide({rideId,token}))
+        dispatch(completeRide({rideId,token,navigate}))
     };
 
     const handleCancelSubmit=()=>{

@@ -38,6 +38,19 @@ const createRide = async (req, res) => {
             });
         }
 
+           const activeRide = await Ride.findOne({
+                    riderId,
+                    status: { $nin: ["COMPLETED", "CANCELLED"] }
+                });
+
+            if (activeRide) {
+            return res.status(400).json({
+                success: false,
+                message: "You already have an active ride",
+                rideId: activeRide._id
+            });
+                  }
+
         const estimatedFare =calculateFare(distanceKm);
 
         const ride = await Ride.create({
@@ -391,6 +404,20 @@ const acceptRide = async (req, res) => {
             });
         }
 
+          const activeRide = await Ride.findOne({
+                    driverId,
+                    status: { $nin: ["COMPLETED", "CANCELLED"] }
+            });
+
+            if (activeRide) {
+            return res.status(400).json({
+                success: false,
+                message: "You already have an active ride",
+                rideId: activeRide._id
+            });
+            }
+
+
         const ride =
             await Ride.findById(rideId);
 
@@ -401,7 +428,9 @@ const acceptRide = async (req, res) => {
             });
         }
 
+           
         if (ride.status !== "REQUESTED") {
+             console.log("coming in requested")
             return res.status(400).json({
                 success: false,
                 message: `Ride is already ${ride.status}`

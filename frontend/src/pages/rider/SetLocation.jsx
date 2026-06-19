@@ -195,7 +195,7 @@ const getCoordinates = async (address) => {
       if(res){
         setPickupCoord([res.lat,res.lng]);
       }
-    },3000);
+    },2000);
   }
 
    const handleDropoffChange=async(e)=>{
@@ -212,7 +212,7 @@ const getCoordinates = async (address) => {
       if(res){
         setDropoffCoord([res.lat,res.lng]);
       }
-    },3000);
+    },2000);
   }
 
   const renderContent = () => (

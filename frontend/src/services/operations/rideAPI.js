@@ -150,6 +150,12 @@ export const acceptRide =(rideId,token,navigate) => async (dispatch) => {
       navigate(`/driver/active/${rideId}`);
 
     } catch (error) {
+      
+      if (error.response?.status === 400) {
+    console.log(error.response.data.message); 
+  } else {
+    console.log("Something went wrong");
+  }
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -200,6 +206,7 @@ export const cancelRide =({ rideId, reason ,token}) =>
 export const rateDriver =({ rideId, rating ,token}) =>
   async (dispatch) => {
     try {
+      console.log("rideId in thunk",rideId);
    const response=   await apiConnector("POST", RATE_DRIVER(rideId),{
         rating,
       },
@@ -345,7 +352,7 @@ export const startRide =({rideId,token}) => async (dispatch) => {
 
 
 
-export const completeRide = ({rideId,token}) => async (dispatch) => {
+export const completeRide = ({rideId,token,navigate}) => async (dispatch) => {
     try {
       const response = await apiConnector("PATCH",COMPLETE_RIDE(rideId),{},{
          Authorization: `Bearer ${token}`,
@@ -375,6 +382,7 @@ export const completeRide = ({rideId,token}) => async (dispatch) => {
       }
 
       dispatch(setRideHistory(updated));
+      navigate('/driver/completed:ride.rideId');
     } catch (error) {
       console.log("Error in completing ride",error);
       
@@ -422,7 +430,7 @@ export const driverCancelRide = ({ rideId, reason,token }) =>
 
 export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
     try {
-     const response= await apiConnector("PATCH",RATE_RIDER(rideId), {
+     const response= await apiConnector("POST",RATE_RIDER(rideId), {
         rating  
       },{
          Authorization: `Bearer ${token}`,
@@ -430,13 +438,13 @@ export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
       });
 
       console.log("res of rating rider",response);
-      const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
+      // const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
 
-      const updated = history.map((r) =>
-        r._id === rideId
-          ? { ...r, driverRating: rating }
-          : r
-      );
+      // const updated = history.map((r) =>
+      //   r._id === rideId
+      //     ? { ...r, driverRating: rating }
+      //     : r
+      // );
 
       dispatch(setRideHistory(updated));
     } catch (error) {

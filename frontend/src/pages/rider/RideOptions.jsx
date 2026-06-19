@@ -155,7 +155,7 @@ const RideOptions = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-extrabold text-primary">{veh.name}</h4>
-                  <span className="text-sm font-extrabold text-primary">₹{fare}</span>
+                  {/* <span className="text-sm font-extrabold text-primary">₹{fare}</span> */}
                 </div>
                 <p className="text-[10px] text-gray-400 mt-0.5 truncate">{veh.description}</p>
                 <div className="flex items-center gap-3.5 mt-1.5 text-[9px] font-bold uppercase tracking-wider text-primary-darkgray">

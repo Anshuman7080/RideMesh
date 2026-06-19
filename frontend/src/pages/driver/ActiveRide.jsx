@@ -178,14 +178,8 @@ const ActiveRide=()=>{
     };
 
     const handleCancelSubmit=()=>{
-        dispatch(driverCancelRide({rideId,reason:cancelReason || 'Cancelled by driver'}))
-        .unwrap()
-        .then(()=>{
-            setShowCancelModal(false);
-            alert('Ride Cancelled');
-            navigate('/driver/home');
-        })
-        .catch((err)=>alert(err || "Failed to cancel"));
+        dispatch(driverCancelRide({rideId,reason:cancelReason || 'Cancelled by driver',token,navigate}))  
+            setShowCancelModal(false);      
     }
 
 //     useEffect(() => {

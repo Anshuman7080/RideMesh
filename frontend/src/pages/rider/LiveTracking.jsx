@@ -166,16 +166,10 @@ useEffect(() => {
 const handleCancelSubmit = () => {
     if (!rideId) return;
 
-    dispatch(cancelRide({rideId,cancelReason,token}))
-      // .unwrap()
-      // .then(() => {
-      //   setShowCancelModal(false);
-      //   alert('Ride cancelled successfully.');
-      //   navigate('/rider/home');
-      // })
-      // .catch((err) => {
-      //   alert(err || 'Failed to cancel ride');
-      // });
+    console.log("Coomgin in handleCancelSubmit")
+    dispatch(cancelRide({rideId,cancelReason,token,navigate}))
+    setShowCancelModal(false);
+    
   };
 
 // useEffect(() => {

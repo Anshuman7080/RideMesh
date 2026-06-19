@@ -34,11 +34,12 @@ import ActiveRide from './pages/driver/ActiveRide';
 import { SocketProvider } from './context/SocketProvider';
 import { ToastContainer } from "react-toastify";
 import { useSocket } from './context/SocketProvider';
+import { getActiveRide } from './services/operations/rideAPI';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
   const dispatch=useDispatch();
-  const {user,role}=useSelector((state)=>state.auth);
+  const {user,role,token}=useSelector((state)=>state.auth);
   const {unreadCount}=useSelector((state)=>state.notification);
   const [activeTab,setActiveTab]=useState(activeTabId || 'home');
 
@@ -53,6 +54,11 @@ const handleTabChange=(id,path)=>{
   navigate(path);
 }
 
+useEffect(()=>{
+  if(user){
+    dispatch(getActiveRide({token}))
+  }
+},[])
 const handleLogout=()=>{
   dispatch(logoutUser());
   navigate('/login');
@@ -86,20 +92,28 @@ const DriverLayout = ({ children,activeTabId }) => {
   const {socket}=useSocket();
   console.log("currenRide on driver layout",currentRide);
 
-   const {user,role}=useSelector((state)=>state.auth);
+   const {user,role,token}=useSelector((state)=>state.auth);
   const {unreadCount}=useSelector((state)=>state.notification);
   const [activeTab,setActiveTab]=useState(activeTabId || 'dashboard');
+  
   
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate('/login');
   };
 
+
   useEffect(()=>{
   if(user){
     dispatch(getMyNotifications());
   }
 },[dispatch,user]);
+
+useEffect(()=>{
+  if(user){
+    dispatch(getActiveRide({token}))
+  }
+},[])
 
 const handleTabChange=(id,path)=>{
   setActiveTab(id);

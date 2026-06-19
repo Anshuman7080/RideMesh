@@ -55,7 +55,6 @@ const Searching = () => {
       const res=await dispatch(cancelRide({ rideId: currentRide._id, reason: 'Cancelled by rider',token }))
       console.log("res on searching page",res);
       dispatch(resetBookingState());
-      navigate('/rider/home');
         
     }
   };

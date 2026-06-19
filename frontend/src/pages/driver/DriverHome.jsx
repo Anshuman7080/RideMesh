@@ -89,10 +89,7 @@ useEffect(() => {
 
         setPosition([lat, lng]);
 
-        dispatch(setCurrentLocation({
-          latitude: lat,
-          longitude: lng,
-        }));
+       
       },
       (err) => console.error('[Geo Error]', err),
       { enableHighAccuracy: true }

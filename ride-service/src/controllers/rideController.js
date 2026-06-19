@@ -314,7 +314,9 @@ const cancelRide = async (req, res) => {
             rideId,
             cancelledBy:"Rider",
             reason:ride.cancellationReason,
-            status:"RIDE_CANCELLED"
+            status:"RIDE_CANCELLED",
+            riderId:riderId
+
 
             }
         )
@@ -823,6 +825,15 @@ const completeRide = async (req, res) => {
         ride.status = "COMPLETED";
         ride.completedAt = new Date();
 
+        // const rideRequest=await RideRequest.findOne({driverId:driverId});
+        // if(!rideRequest){
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "RideRequest not found"
+        //     });
+        // }
+        // rideRequest.status="COMPLETED"
+        // ride.completedAt = new Date();
        
         ride.finalFare = ride.estimatedFare;
 
@@ -833,6 +844,8 @@ const completeRide = async (req, res) => {
                 )
 
         await ride.save();
+
+        // await rideRequest.save();
 
 
 
@@ -1309,6 +1322,43 @@ const getNearbyDrivers=async(req,res)=>{
 }
 
 
+const getActiveRide = async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const ride = await Ride.findOne({
+      $or: [{ riderId: userId }, { driverId: userId }],
+      status: { $nin: ['COMPLETED', 'CANCELLED'] },
+    });
+
+    if (!ride) {
+      return res.status(404).json({
+        success: false,
+        message: "No active ride found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      ride,
+    });
+
+  } catch (error) {
+    console.log("error in getting active ride", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
     createRide,
     getRideDetails,
@@ -1326,5 +1376,6 @@ module.exports = {
     setDriverOnline,
     setDriverOffline,
     getOnlineDrivers,
-    getNearbyDrivers
+    getNearbyDrivers,
+    getActiveRide
 };

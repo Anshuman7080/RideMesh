@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import { updateCurrentRideStatus } from '../slices/rideSlice';
 import { addNotification } from '../slices/notificationSlice';
 import showToastWithRedirect from '../components/Toast';
+import { useNavigate } from 'react-router-dom';
 const SocketContext = createContext(null);
 
 export const useSocket = () => useContext(SocketContext);
@@ -11,6 +12,7 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const { user, token, role } = useSelector((state) => state.auth);
   console.log("user in socketPRovider is",user);
+  const navigate=useNavigate();
 
   const [socket, setSocket] = useState(null);
   const dispatch=useDispatch();
@@ -118,7 +120,7 @@ useEffect(() => {
       actionLabel:'Track Cab',
      },`/rider/tracking/${data.rideId}`);
     
-
+    navigate(`/rider/tracking/${data.rideId}`)
   };
 
   socket.on('ride-accepted', handleRideAccepted);
@@ -247,6 +249,8 @@ useEffect(() => {
       type:'success',
       actionLabel:'Pay / Review',
      },`/rider/completed/${data.rideId}`);
+
+     navigate(`/rider/completed/${data.rideId}`);
     
 
   };

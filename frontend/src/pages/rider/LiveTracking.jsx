@@ -124,10 +124,6 @@ useEffect(() => {
    },[currentRide, rideId, token]);
 
 
-  //  useEffect(()=>{
-  //   if(!rideId)return;
-  //   dispatch(getRideDetails(rideId));
-  //  },[rideId,dispatch]);
 
    useEffect(()=>{
     if(!currentRide)return;

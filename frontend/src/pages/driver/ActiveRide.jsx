@@ -77,8 +77,7 @@ const ActiveRide=()=>{
       }, [currentRide?.dropoff?.latitude, currentRide?.dropoff?.longitude]);
     
 
-    // console.log("currenRide is",currentRide);
-    
+
 
        useEffect(()=>{
         if (!rideId) return; 

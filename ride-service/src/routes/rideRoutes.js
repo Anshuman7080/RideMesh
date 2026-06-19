@@ -8,7 +8,8 @@ const {
     ,rejectRide,driverCancelRide,rateDriver,rateRider,updateDriverLocation,
     setDriverOnline,setDriverOffline,
     getOnlineDrivers,getNearbyDrivers,
-    getActiveRide
+    getActiveRide,
+    getListOfDriverRide
 } = require("../controllers/rideController");
 
 const {publishEvent}=require("../utils/eventBus");
@@ -31,6 +32,7 @@ router.get("/test-rabbit", async (req, res) => {
 
 router.get('/activeRide',getActiveRide)
 router.post("/create", createRide);
+router.get('/driversRide',getListOfDriverRide)
 
 router.get("/request", getDriverRequests);
 

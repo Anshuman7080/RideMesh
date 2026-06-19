@@ -7,15 +7,15 @@ import {
   setApplied,
   setIsApproved,
   updateAvailability,
+  setRideList
 } from "../../slices/driverSlice";
 
 import { driverEndPoints  } from "../apis";
 
-const {GET_DRIVER_PROFILE,GETDRIVERDETAILFORRIDE}=driverEndPoints;
+const {GET_DRIVER_PROFILE,GETDRIVERDETAILFORRIDE,UPDATE_DRIVER_PROFILE,RIDE_RECORD_FOR_DRIVER}=driverEndPoints;
 
 
-export const applyDriver =
-  ({
+export const applyDriver = ({
     phone,
     vehicleType,
     vehicleNumber,
@@ -44,14 +44,17 @@ export const applyDriver =
 
 
 
-export const getDriverProfile = () => async (dispatch) => {
+export const getDriverProfile = ({token}) => async (dispatch) => {
  
    dispatch(setLoading(true));
    dispatch(setError(null));
   try {
-    const response = await apiConnector("GET",GET_DRIVER_PROFILE,{},{
-
-    });
+    const response = await apiConnector("GET",GET_DRIVER_PROFILE,{},
+      {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    );
 
     console.log("response of getDriverProfile....",response);
 
@@ -59,10 +62,11 @@ export const getDriverProfile = () => async (dispatch) => {
 
     console.log("driver is",driver);
 
-    return driver;
+    dispatch(setProfile(driver));
   
   } catch (error) {
   console.log("error in getting  driverProfile",error);
+  console.log("Error in getting driver details", error.response?.data?.message)
   dispatch(setProfile(null));
   dispatch(setIsApproved(false));
 
@@ -72,17 +76,24 @@ export const getDriverProfile = () => async (dispatch) => {
 };
 
 
-export const updateDriverProfile =
-  (profileData) => async (dispatch) => {
+export const updateDriverProfile =({profileData,token}) => async (dispatch) => {
    
     try {
-      const response = await apiConnector(
-        "/drivers/profile",
+      const response = await apiConnector("PUT",UPDATE_DRIVER_PROFILE,{
         profileData
+      },{
+         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
       );
 
+      console.log("response of updating driver profile",response);
+        dispatch(setProfile(response?.data?.driver))
      
     } catch (error) {
+
+      console.log("Error in updating driver profile",error);
+      console.log("Error in updating driver profile",error.response?.data);
       
     } finally {
     
@@ -90,9 +101,7 @@ export const updateDriverProfile =
   };
 
 
-
-export const toggleAvailability =
-  (isAvailable) => async (dispatch) => {
+export const toggleAvailability =(isAvailable) => async (dispatch) => {
    
 
     try {
@@ -133,3 +142,20 @@ export const  getDriverDetailForRide=({driverId,token})=>
       }
     }
 
+export const getRideListForDriver=({token})=>
+  async (dispatch)=>{
+    try{
+     const response=await apiConnector('GET',RIDE_RECORD_FOR_DRIVER,{},{
+      Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        
+     })
+
+     console.log("response of getRideList....",response);
+     dispatch(setRideList(response?.data?.rideList))
+    }
+    catch(error){
+      console.log("error in getting ride Lists",error.response?.data);
+      console.log("Error in getting ride list",error);
+    }
+  }

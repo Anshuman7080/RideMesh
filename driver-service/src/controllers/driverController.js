@@ -121,12 +121,17 @@ const updateDriverProfile = async (req, res) => {
       });
     }
 
+  
+
+    const {profileData}=req.body;
+
     const {
       phone,
       vehicleType,
       vehicleNumber,
       drivingLicense
-    } = req.body;
+    } =profileData;
+
 
     if (phone) driver.phone = phone;
     if (vehicleType) driver.vehicleType = vehicleType;

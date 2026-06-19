@@ -1359,6 +1359,48 @@ const getActiveRide = async (req, res) => {
   }
 };
 
+const getListOfDriverRide=async(req,res)=>{
+try{
+ 
+   const userId = req.headers['x-user-id'];
+
+   console.log("userId is",userId);
+
+ if(!userId){
+    return res.status(401).json({
+        success:false,
+        message:"Unauthorized"
+    })
+ }
+
+const rideList = await Ride.find({
+  driverId: userId,
+  status: 'COMPLETED'
+});
+
+
+ if(!rideList){
+    return res.status(404).json({
+        success:false,
+        message:"No ride found"
+    })
+ }
+
+ return res.status(200).json({
+    success:true,
+    rideList
+ });
+
+}catch(error){
+    console.log("error in getting list of rides for driver",error);
+    return res.status(500).json({
+        success:false,
+        error:error
+    })
+}
+}
+
+
 module.exports = {
     createRide,
     getRideDetails,
@@ -1377,5 +1419,6 @@ module.exports = {
     setDriverOffline,
     getOnlineDrivers,
     getNearbyDrivers,
-    getActiveRide
+    getActiveRide,
+    getListOfDriverRide
 };

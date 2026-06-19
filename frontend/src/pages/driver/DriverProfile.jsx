@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, Car, FileText, Smartphone, Star, ShieldCheck, LogOut, RefreshCw, Power } from 'lucide-react';
-// import { getDriverProfile, updateDriverProfile, toggleAvailability } from '../../services/operations/driverAPI';
+import { getDriverProfile, updateDriverProfile } from '../../services/operations/driverAPI';
+import { setError } from '../../slices/driverSlice';
 import {  logoutUser } from '../../services/operations/authAPI';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -10,11 +11,12 @@ import Card from '../../components/Card';
 import Loader from '../../components/Loader';
 import StatusBadge from '../../components/StatusBadge';
 
+
 const DriverProfile=()=>{
     const navigate=useNavigate();
     const dispatch=useDispatch();
     
-    const {user}=useSelector((state)=>state.auth);
+    const {user,token}=useSelector((state)=>state.auth);
     const {profile,loading,error}=useSelector((state)=>state.driver);
     
     const [formData,setFormData]=useState({
@@ -25,10 +27,6 @@ const DriverProfile=()=>{
     });
 
     const [editMode,setEditMode]=useState(false);
-
-    useEffect(()=>{
-       
-    },[dispatch]);
 
 
     useEffect(()=>{
@@ -47,35 +45,31 @@ const DriverProfile=()=>{
         setFormData((prev)=>({...prev,[id]:value}));
     };
 
-    const handleToggleOnline=()=>{
-       
-       
-    }
+  
+const handleSubmit = (e) => {
+    e.preventDefault();
 
-    const handleSubmit = (e) => {
-    
-    }
+    dispatch(updateDriverProfile({ profileData: formData, token }));
+    setEditMode(false);
+};
 
-    const handleSwitchToRider=()=>{
-
-    }
 
     const handleLogout=()=>{
-
+         dispatch(logoutUser());
     }
 
-    // if (loading && !profile) return <Loader message="Fetching partner logs..." fullPage />;
+    if (loading && !profile) return <Loader message="Fetching partner logs..." fullPage />;
 
-//     if (!profile) {
-//         return (
-//         <div className="max-w-md mx-auto py-16 text-center space-y-4 px-4">
-//             <div className="p-3 bg-red-50 text-accent-red rounded-full w-fit mx-auto"><FileText size={24} /></div>
-//             <h2 className="text-lg font-bold">Driver Profile Not Active</h2>
-//             <p className="text-xs text-gray-400">You must submit a partner application to activate settings.</p>
-//             <Button variant="primary" onClick={() => navigate('/driver/apply')}>Apply to drive</Button>
-//         </div>
-//     );
-//   }
+    if (!profile) {
+        return (
+        <div className="max-w-md mx-auto py-16 text-center space-y-4 px-4">
+            <div className="p-3 bg-red-50 text-accent-red rounded-full w-fit mx-auto"><FileText size={24} /></div>
+            <h2 className="text-lg font-bold">Driver Profile Not Active</h2>
+            <p className="text-xs text-gray-400">You must submit a partner application to activate settings.</p>
+            <Button variant="primary" onClick={() => navigate('/driver/apply')}>Apply to drive</Button>
+        </div>
+    );
+  }
 
 
   return (
@@ -94,16 +88,7 @@ const DriverProfile=()=>{
             <p className="text-xs text-primary-darkgray">Manage your partner driver stats and credentials.</p>
           </div>
         </div>
-        
-       
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSwitchToRider}
-          className="border-accent-blue text-accent-blue hover:bg-blue-50 font-bold"
-        >
-          Rider Panel
-        </Button>
+
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -218,31 +203,7 @@ const DriverProfile=()=>{
           </form>
         </Card>
 
-        {/* Quick offline/online Availability Card */}
-        <Card padding="normal" className="border-gray-150 bg-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gray-100 text-primary-darkgray rounded-xl"><Power size={18} /></div>
-            <div>
-              <h4 className="text-xs font-extrabold text-primary">Cab Availability</h4>
-              <p className="text-[9px] text-gray-400">Stream position coordinates to riders</p>
-            </div>
-          </div>
-          <button
-            onClick={handleToggleOnline}
-            disabled={loading}
-            className={`
-              relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none
-              ${profile?.isAvailable ? 'bg-accent-green' : 'bg-gray-200'}
-            `}
-          >
-            <span
-              className={`
-                pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
-                ${profile?.isAvailable ? 'translate-x-5' : 'translate-x-0'}
-              `}
-            />
-          </button>
-        </Card>
+       
 
         <Card padding="normal" className="border-red-150 border bg-red-50/5 flex items-center justify-between">
           <div className="flex items-center gap-3">

@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   applied: false,
   isApproved: false,
+  rideList:[]
 };
 
 const driverSlice = createSlice({
@@ -23,6 +24,9 @@ const driverSlice = createSlice({
 
     setProfile: (state, action) => {
       state.profile = action.payload;
+    },
+    setRideList:(state,action)=>{
+      state.rideList=action.payload
     },
 
     setApplied: (state, action) => {
@@ -62,6 +66,7 @@ export const {
   updateAvailability,
   clearDriverState,
   clearDriverError,
+  setRideList
 } = driverSlice.actions;
 
 export default driverSlice.reducer;

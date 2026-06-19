@@ -242,36 +242,6 @@ export const rateDriver =({ rideId, rating ,token}) =>
   };
 
 
-// export const getNearbyDrivers =
-//   ({ latitude, longitude }) =>
-//   async (dispatch) => {
-//     try {
-//       const response = await apiConnector(
-//         "/rides/drivers/nearby",
-//         {
-//           params: { latitude, longitude },
-//         }
-//       );
-
-//       const rawDrivers = response.data.drivers || [];
-
-//       const drivers = rawDrivers.map((d) => ({
-//         driverId: Array.isArray(d) ? d[0] : d,
-//         distanceKm: Array.isArray(d) ? Number(d[1]) : 0,
-//       }));
-
-//       dispatch(setNearbyDrivers(drivers));
-//     } catch (error) {
-//       dispatch(
-//         setError(
-//           error.response?.data?.message ||
-//             "Failed to fetch nearby drivers"
-//         )
-//       );
-//     }
-//   };
-
-
 
 export const rejectRide =({rideId,token}) => async (dispatch) => {
     try {

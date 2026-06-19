@@ -28,14 +28,6 @@ const Completed=()=>{
     setRating(selectedRating);
 
     dispatch(rateDriver({rideId,rating:selectedRating,token}))
-    // .unwrap()
-    // .then(()=>{
-    //     setRated(true);
-    //     alert('Thank you for your rating!');
-    // })
-    // .catch((err)=>{
-    //     alert(err || 'Failed to submit rating');
-    // })
    }
 
 

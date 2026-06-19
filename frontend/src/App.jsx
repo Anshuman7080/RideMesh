@@ -35,6 +35,7 @@ import { SocketProvider } from './context/SocketProvider';
 import { ToastContainer } from "react-toastify";
 import { useSocket } from './context/SocketProvider';
 import { getActiveRide } from './services/operations/rideAPI';
+import { getDriverProfile } from './services/operations/driverAPI';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
@@ -112,6 +113,12 @@ const DriverLayout = ({ children,activeTabId }) => {
 useEffect(()=>{
   if(user){
     dispatch(getActiveRide({token}))
+  }
+},[])
+
+useEffect(()=>{
+  if(user){
+    dispatch(getDriverProfile({token}));
   }
 },[])
 

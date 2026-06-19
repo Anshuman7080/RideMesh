@@ -1,53 +1,36 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, DollarSign, Calendar, MapPin, TrendingUp, Award } from 'lucide-react';
 import Card from '../../components/Card';
 import StatusBadge from '../../components/StatusBadge';
+import {getRideListForDriver} from "../../services/operations/driverAPI"
+import { useEffect } from 'react';
 
 
 
 const DriverEarnings=()=>{
     const navigate=useNavigate();
+    const dispatch=useDispatch();
 
     const {rideHistory}=useSelector((state)=>state.ride);
     const {profile}=useSelector((state)=>state.driver);
+    const {token}=useSelector((state)=>state.auth);
+    const {rideList}=useSelector((state)=>state.driver);
 
-      const mockEarnings = [
-    {
-      _id: 'mock_earn_1',
-      requestedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-      pickup: { address: 'BHU Gate, Lanka, Varanasi' },
-      dropoff: { address: 'Cantt Railway Station Circle' },
-      estimatedFare: 130,
-      distanceKm: 6.8,
-      status: 'COMPLETED',
-    },
-    {
-      _id: 'mock_earn_2',
-      requestedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-      pickup: { address: 'Assi Ghat Circle, Varanasi' },
-      dropoff: { address: 'Sarnath Museum Entrance Gate' },
-      estimatedFare: 210,
-      distanceKm: 12.1,
-      status: 'COMPLETED',
-    },
-    {
-      _id: 'mock_earn_3',
-      requestedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      pickup: { address: 'Godaulia Intersection, Kashi' },
-      dropoff: { address: 'Lanka Crossing, Varanasi' },
-      estimatedFare: 90,
-      distanceKm: 3.5,
-      status: 'COMPLETED',
-    }
-  ];
+    // console.log("rideList on earning page",rideList);
 
-   const completedHistory=rideHistory?.filter(ride=>ride.status==='COMPLETED');
-   const displayList=completedHistory?.length > 0 ?completedHistory : mockEarnings;
+  
+
+    useEffect(()=>{
+      if(!token)return;
+      dispatch(getRideListForDriver({token}));
+    },[]);
+   
+   const displayList=rideList
 
    const totalTrips=displayList.length;
-   const totalAmount=displayList.reduce((acc,curr)=>acc+curr.estimatedFare,0);
+   const totalAmount=displayList.reduce((acc,curr)=>acc+curr.estimatedFare,0).toFixed(2);
    const ratingValue=profile?.rating || '4.8';
 
    const formatDate = (dateString) => {

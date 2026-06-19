@@ -26,7 +26,8 @@ export const rideEndPoints = {
   START_RIDE: (rideId) => BASEURL + `/api/v1/rides/${rideId}/start`,
   COMPLETE_RIDE: (rideId) => BASEURL + `/api/v1/rides/${rideId}/complete`,
   DRIVER_CANCEL: (rideId) => BASEURL + `/api/v1/rides/${rideId}/driver-cancel`,
-  ACTIVE_RIDE:BASEURL+'/api/v1/rides/activeRide'
+  ACTIVE_RIDE:BASEURL+'/api/v1/rides/activeRide',
+
 };
 
 
@@ -44,6 +45,7 @@ export const driverEndPoints = {
   APPROVE_DRIVER: (driverId) => BASEURL + `/api/v1/drivers/approve/${driverId}`,
 
   GETDRIVERDETAILFORRIDE:(driverId)=>BASEURL+ `/api/v1/drivers/${driverId}/ride`,
+  RIDE_RECORD_FOR_DRIVER:BASEURL+'/api/v1/rides/driversRide'
 
 };
 

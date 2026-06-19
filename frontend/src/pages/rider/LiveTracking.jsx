@@ -83,9 +83,9 @@ const LiveTracking=()=>{
 
 
 
-    useEffect(()=>{
-       setDriverId(currentRide?.driverId);
-    },[currentRide]);
+useEffect(()=>{
+    setDriverId(currentRide?.driverId);
+},[currentRide]);
 
 useEffect(() => {
   if(!driverId)return;
@@ -202,7 +202,6 @@ const handleCancelSubmit = () => {
 //     return () => clearInterval(interval);
 //   }, [pickupPos, dropoffPos]);
 
-    if (!currentRide) return null;
 
 
 
@@ -218,6 +217,44 @@ const handleCancelSubmit = () => {
     // console.log("pickup",pickupPos)
 
 
+if (!currentRide) {
+  return (
+    <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-slate-50 flex items-center justify-center px-6">
+      <div className="text-center max-w-sm">
+        {loading ? (
+          <>
+            <div className="mx-auto mb-5 w-14 h-14 rounded-full border-4 border-indigo-100 border-t-indigo-500 animate-spin" />
+            <h2 className="text-primary font-bold text-lg tracking-tight mb-1.5">
+              Fetching your ride details
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Hang tight, we're pulling up the live tracking for your trip.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="mx-auto mb-5 w-14 h-14 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-accent-red" />
+            </div>
+            <h2 className="text-primary font-bold text-lg tracking-tight mb-1.5">
+              We couldn't find this ride
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              This ride may have ended, been cancelled, or the link is no longer valid.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/rider/home')}
+              className="border-gray-200 text-primary hover:bg-gray-50"
+            >
+              Back to Home
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const renderInfoPanel = () => (
     <div className="space-y-6">

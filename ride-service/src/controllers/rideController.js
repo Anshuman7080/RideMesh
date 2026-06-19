@@ -308,16 +308,17 @@ const cancelRide = async (req, res) => {
         );
 
 
-        // publishEvent("ride.cancelledByRider",
-        //     {
-        //     riderId: ride.driverId,
-        //     userRole: "rider",
-        //     rideId: ride._id,
-        //     type: "RIDE_CANCELLED",
-        //     title: "Ride Cancelled",
-        //     message: reason || "Ride was cancelled"
-        //     }
-        // )
+        publishEvent("ride.cancelledByRider",
+            {
+            driverId: ride.driverId,
+            rideId,
+            cancelledBy:"Rider",
+            reason:ride.cancellationReason,
+            status:"RIDE_CANCELLED"
+
+            }
+        )
+
 
         await RideStatusHistory.create({
             rideId: ride._id,

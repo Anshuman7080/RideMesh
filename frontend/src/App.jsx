@@ -59,16 +59,18 @@ const handleLogout=()=>{
 }
 
 return (
-  <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-    <Navbar
-      user={user}
-      role={role}
-      unreadNotificationsCount={unreadCount}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      onLogout={handleLogout}
-    />
-    <main className="flex-1 flex flex-col">
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex flex-col font-sans">
+    <div className="bg-gradient-to-r from-slate-900/95 via-indigo-950/95 to-slate-900/95 backdrop-blur-md border-b border-indigo-500/20 shadow-lg shadow-indigo-950/50 relative z-10">
+      <Navbar
+        user={user}
+        role={role}
+        unreadNotificationsCount={unreadCount}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onLogout={handleLogout}
+      />
+    </div>
+    <main className="flex-1 flex flex-col bg-slate-50 rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.3)] relative z-0">
       {children}
     </main>
   </div>
@@ -76,17 +78,33 @@ return (
 
 }
 
-const DriverLayout = ({ children }) => {
+
+const DriverLayout = ({ children,activeTabId }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {currentRide}=useSelector((state)=>state.ride);
   const {socket}=useSocket();
   console.log("currenRide on driver layout",currentRide);
+
+   const {user,role}=useSelector((state)=>state.auth);
+  const {unreadCount}=useSelector((state)=>state.notification);
+  const [activeTab,setActiveTab]=useState(activeTabId || 'dashboard');
   
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate('/login');
   };
+
+  useEffect(()=>{
+  if(user){
+    dispatch(getMyNotifications());
+  }
+},[dispatch,user]);
+
+const handleTabChange=(id,path)=>{
+  setActiveTab(id);
+  navigate(path);
+}
 
   useEffect(()=>{
     if(!socket || !currentRide?.riderId)return;
@@ -106,22 +124,25 @@ const DriverLayout = ({ children }) => {
   },[socket,currentRide?.riderId]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-white flex flex-col font-sans">
-      <nav className="h-16 bg-black border-b border-gray-900 flex items-center justify-between px-6">
-        <span className="font-extrabold text-lg text-accent-blue tracking-wider">RideMesh Driver</span>
-        <button 
-          onClick={handleLogout}
-          className="text-xs px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all active:scale-95"
-        >
-          Sign Out
-        </button>
-      </nav>
-      <main className="flex-1 flex flex-col">
-        {children}
-      </main>
+   <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex flex-col font-sans">
+    <div className="bg-gradient-to-r from-slate-900/95 via-indigo-950/95 to-slate-900/95 backdrop-blur-md border-b border-indigo-500/20 shadow-lg shadow-indigo-950/50 relative z-10">
+      <Navbar
+        user={user}
+        role={role}
+        unreadNotificationsCount={unreadCount}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onLogout={handleLogout}
+      />
     </div>
+    <main className="flex-1 flex flex-col bg-slate-50 rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.3)] relative z-0">
+      {children}
+    </main>
+  </div>
   );
 };
+
+
 
 function App() {
 
@@ -233,7 +254,9 @@ function App() {
           path="/rider/completed/:rideId"
           element={
             <ProtectedRoute allowedRoles={['rider']}>
+            <RiderLayout>
               <Completed />
+              </RiderLayout>
             </ProtectedRoute>
           }
         />
@@ -338,7 +361,7 @@ function App() {
           path="/driver/requests"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
-              <DriverLayout>
+              <DriverLayout activeTabId="requests">
                 <DriverRequests />
               </DriverLayout>
            </ProtectedRoute>
@@ -350,7 +373,7 @@ function App() {
           path="/driver/active/:rideId"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
-              <DriverLayout>
+              <DriverLayout activeTabId="dashboard">
                 <ActiveRide />
                </DriverLayout>
              </ProtectedRoute>
@@ -362,7 +385,9 @@ function App() {
           path="/driver/completed/:rideId"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
+            <DriverLayout>
               <DriverCompleted />
+              </DriverLayout>
              </ProtectedRoute>
           }
         />
@@ -371,7 +396,7 @@ function App() {
           path="/driver/earnings"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
-              <DriverLayout>
+              <DriverLayout activeTabId="earnings">
                 <DriverEarnings />
                </DriverLayout>
              </ProtectedRoute>
@@ -382,7 +407,7 @@ function App() {
           path="/driver/profile"
           element={
             <ProtectedRoute allowedRoles={['driver']}>
-              <DriverLayout>
+              <DriverLayout activeTabId="profile">
                 <DriverProfile />
                </DriverLayout>
             </ProtectedRoute>

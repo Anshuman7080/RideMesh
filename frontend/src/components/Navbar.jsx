@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Menu, X, Bell, User, LogOut, History, Shield, Car } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Menu, X, Bell, User, LogOut, History, Shield, Car, Navigation } from 'lucide-react';
 
 const Navbar = ({
   user,
@@ -10,6 +11,7 @@ const Navbar = ({
   onTabChange,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentRide } = useSelector((state) => state.ride);
 
   const navigationLinks = role === 'rider' 
     ? [
@@ -17,6 +19,7 @@ const Navbar = ({
         { label: 'Activity', id: 'history', icon: History, path: '/rider/history' },
         { label: 'Notifications', id: 'notifications', icon: Bell, path: '/rider/notifications' },
         { label: 'Profile', id: 'profile', icon: User, path: '/rider/profile' },
+        
       ]
     : [
         { label: 'Dashboard', id: 'dashboard', icon: Shield, path: '/driver/home' },
@@ -24,6 +27,12 @@ const Navbar = ({
         { label: 'Earnings', id: 'earnings', icon: History, path: '/driver/earnings' },
         { label: 'Profile', id: 'profile', icon: User, path: '/driver/profile' },
       ];
+
+  const trackingPath = currentRide
+    ? role === 'rider'
+      ? `/rider/tracking/${currentRide._id || currentRide.rideId}`
+      : `/driver/active/${currentRide._id || currentRide.rideId}`
+    : null;
 
   function MapPinIcon(props) {
     return (
@@ -91,6 +100,20 @@ const Navbar = ({
               );
             })}
 
+            {trackingPath && (
+              <button
+                onClick={() => handleLinkClick('tracking', trackingPath)}
+                className="relative flex items-center gap-2 px-3.5 py-2 text-sm font-bold rounded-lg bg-accent-green/15 text-accent-green border border-accent-green/30 hover:bg-accent-green hover:text-white transition-all"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-green" />
+                </span>
+                <Navigation size={15} />
+                Track Live Ride
+              </button>
+            )}
+
             <div className="h-6 w-px bg-primary-light ml-2" />
 
             {/* User Profile Info & Logout */}
@@ -113,6 +136,19 @@ const Navbar = ({
         {/* Mobile Hamburger toggle */}
         {user && (
           <div className="flex items-center gap-3.5 md:hidden">
+            {trackingPath && (
+              <button
+                onClick={() => handleLinkClick('tracking', trackingPath)}
+                className="relative p-2 text-accent-green hover:text-white hover:bg-accent-green/20 rounded-lg transition-all"
+                title="Track Live Ride"
+              >
+                <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-green" />
+                </span>
+                <Navigation size={18} />
+              </button>
+            )}
             {role === 'rider' && unreadNotificationsCount > 0 && (
               <button
                 onClick={() => handleLinkClick('notifications', '/rider/notifications')}
@@ -162,6 +198,20 @@ const Navbar = ({
                 <span className="text-[10px] text-gray-400">{user.email}</span>
               </div>
             </div>
+          )}
+
+          {trackingPath && (
+            <button
+              onClick={() => handleLinkClick('tracking', trackingPath)}
+              className="flex w-full items-center gap-3.5 px-4 py-3.5 text-sm font-semibold rounded-xl transition-all bg-accent-green/15 text-accent-green border border-accent-green/30 mb-2"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-green" />
+              </span>
+              <Navigation size={18} />
+              <span className="flex-1 text-left">Track Live Ride</span>
+            </button>
           )}
 
           {navigationLinks.map((link) => {

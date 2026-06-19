@@ -449,7 +449,7 @@ export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
       dispatch(setRideHistory(updated));
     } catch (error) {
 
-      console.log("Error in rating rider",error);
+      console.log("Error in rating rider",error.response?.data?.message);
       dispatch(
         setError(
           error.response?.data?.message ||
@@ -478,6 +478,12 @@ export const getRideDetails=({rideId,token})=>async(dispatch)=>{
     catch(error){
 
       console.log("error in getting rideDetails",error);
+      dispatch(
+              setError(
+                error.response?.data?.message ||
+                  "Error in getting Ride Details!"
+              )
+            );
 
     }finally{
 

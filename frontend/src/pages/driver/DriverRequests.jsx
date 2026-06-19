@@ -31,38 +31,13 @@ const DriverRequests=()=>{
 const handleAccept=(rideId)=>{
      if(!rideId || !token)return;
 
-     dispatch(acceptRide(rideId,token,navigate));
-
-     
+     dispatch(acceptRide(rideId,token,navigate));  
 }
 
 const handleReject=(rideId)=>{
     dispatch(rejectRide({rideId,token}));
 }
 
-
-const mockRequests = [
-    {
-      rideId: 'mock_req_1',
-      details: {
-        _id: 'mock_req_1',
-        pickup: { address: 'Lanka, BHU Entrance Gate, Varanasi' },
-        dropoff: { address: 'Varanasi Junction Cantt Railway Station' },
-        estimatedFare: 130,
-        distanceKm: 6.8,
-      }
-    },
-    {
-      rideId: 'mock_req_2',
-      details: {
-        _id: 'mock_req_2',
-        pickup: { address: 'Assi Ghat Staircase, Ghats, Varanasi' },
-        dropoff: { address: 'Sarnath Deer Park Stupa Gateway' },
-        estimatedFare: 210,
-        distanceKm: 12.1,
-      }
-    }
-];
 
 const displayList=detailedRequests;
 

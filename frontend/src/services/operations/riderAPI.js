@@ -83,6 +83,12 @@ export const  getRiderDetailForRide=({riderId,token})=>
       }
       catch(error){
         console.log("Error in gettingRiderDetailForRide...",error);
+        dispatch(
+                setError(
+                  error.response?.data?.message ||
+                    "Failed to get rider  detail"
+                )
+              );
         return null;
       }
     }

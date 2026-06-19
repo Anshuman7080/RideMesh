@@ -42,15 +42,15 @@ const initializeSocket = (server) => {
             `${userId} joined ${roomName}`
         );
  
-        io.to(roomName).emit(
-            "test-message",
-            {
-                message:
-                    "Welcome to mini uber",
-                room:
-                    roomName
-            }
-        );
+        // io.to(roomName).emit(
+        //     "test-message",
+        //     {
+        //         message:
+        //             "Welcome to mini uber",
+        //         room:
+        //             roomName
+        //     }
+        // );
 
         if(role=="driver"){
             await redisClient.sAdd("online-drivers",userId);

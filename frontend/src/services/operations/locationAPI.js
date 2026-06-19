@@ -54,24 +54,3 @@ export const setDriverOffline = () => async (dispatch) => {
 
 
 
-export const updateDriverLocation =
-  ({ latitude, longitude }) =>
-  async (dispatch) => {
-    try {
-      await apiConnector("/rides/drivers/location", {
-        latitude,
-        longitude,
-      });
-
-      dispatch(
-        setCurrentLocation({ latitude, longitude })
-      );
-    } catch (error) {
-      dispatch(
-        setError(
-          error.response?.data?.message ||
-            "Failed to update location on server"
-        )
-      );
-    }
-  };

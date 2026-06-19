@@ -301,6 +301,49 @@ useEffect(() => {
   };
 }, [socket, dispatch]);
 
+// ride cancelled by rider
+
+useEffect(() => {
+  if (!socket || role!=='driver') return;
+
+  console.log('[Socket] listening for ride cancelled by rider');
+  const handleRideCancel = (data) => {
+    console.log('[Socket] Ride-Cancelled by Rider:', data);
+
+    dispatch(updateCurrentRideStatus({
+      rideId: data.rideId,
+      status: 'CANCELLED',
+    }));
+
+    dispatch(addNotification({
+      _id: `socket_notif_${Date.now()}`,
+      userId:user.id,
+      userRole:'rider',
+      rideId: data.rideId,
+      type: 'RIDE_CANCELLED',
+      title: 'Ride Cancelled',
+      message: 'Your match was cancelled by the rider partner.',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    }));
+   
+    showToastWithRedirect({
+      title:"Ride Cancelled!",
+      message:`The Rider cancelled the match.`,
+      type:'warning',
+      actionLabel:'Try next ride',
+     },`/driver/home`);
+    
+
+  };
+
+  socket.on('cancelled-by-rider', handleRideCancel);
+
+  return () => {
+    socket.off('cancelled-by-rider', handleRideCancel);
+  };
+}, [socket, dispatch]);
+
 // payment successful
 
 useEffect(() => {

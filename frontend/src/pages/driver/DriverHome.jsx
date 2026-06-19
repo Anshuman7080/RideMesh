@@ -6,7 +6,7 @@ import L from 'leaflet';
 // import io from 'socket.io-client';
 import { useSocket } from '../../context/SocketProvider';
 import { Power, ShieldAlert, Award, ArrowRight, MapPin, Navigation, DollarSign, ListCollapse, CheckCircle2 } from 'lucide-react';
-import { setDriverOnline, setDriverOffline, updateDriverLocation } from '../../services/operations/locationAPI';
+import { setDriverOnline, setDriverOffline,  } from '../../services/operations/locationAPI';
 import { addNotification } from '../../slices/notificationSlice';
 import {setCurrentLocation} from "../../slices/locationSlice"
 import Button from '../../components/Button';

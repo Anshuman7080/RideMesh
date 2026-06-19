@@ -17,12 +17,33 @@ const Searching = () => {
   const {token}=useSelector((state)=>state.auth);
   const pollingRef = useRef(null);
 
+
+  useEffect(() => {
+    if (!currentRide) {
+      navigate('/rider/home');
+      return;
+    }
+
+  const timer = setTimeout(async () => {
+      if (currentRide && currentRide._id) {
+        const res = await dispatch(
+          cancelRide({ rideId: currentRide._id, reason: 'No driver accepted within 2 minutes', token })
+        );
+        console.log("Auto-cancel triggered:", res);
+        dispatch(resetBookingState());
+        navigate('/rider/home');
+      }
+    }, 1 * 60 * 1000);
+  },[currentRide, navigate, dispatch, token])
+
  
   useEffect(() => {
     if (!currentRide) {
       navigate('/rider/home');
     }
   }, [currentRide, navigate]);
+
+
 
  
 

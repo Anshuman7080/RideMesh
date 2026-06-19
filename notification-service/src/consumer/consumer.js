@@ -326,6 +326,26 @@ async function handleEvent(
 
         case "ride.cancelledByRider":
 
+        if(data?.driverId){
+            emitToUser(
+                "driver",
+                data.driverId,
+                "cancelled-by-rider",
+                {
+                    driverId:
+                        data.driverId,
+                    rideId:
+                        data.rideId,
+                    cancelledBy:
+                        "Rider",
+                    reason:
+                        data.reason,
+                    status:
+                        data.status
+                }
+            );
+        }
+
             await Notification.create({
                 userId:
                     data.riderId,

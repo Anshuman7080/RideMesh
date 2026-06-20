@@ -15,7 +15,7 @@ import {apiConnector } from "../apiconnector"
 
 import { authEndPoints } from "../apis";
 
-const { SEND_OTP, VERIFY_OTP, RESEND_OTP, LOGIN } = authEndPoints;
+const { SEND_OTP, VERIFY_OTP, RESEND_OTP, LOGIN,LOGOUT } = authEndPoints;
 
 
 console.log("sendOPt",SEND_OTP);
@@ -178,6 +178,17 @@ export const login =({ email, password }) =>
     }
 };
 
-export const logoutUser = () => (dispatch) => {
-  dispatch(logout());
+export const logoutUser =() =>
+  async (dispatch) => {
+    try {
+      const response = await apiConnector("POST",LOGOUT);
+      dispatch(logout());
+    } catch (error) {
+      console.log("Failed to logout",error);
+      
+    } 
 };
+
+
+
+

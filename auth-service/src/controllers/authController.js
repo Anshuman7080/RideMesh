@@ -251,6 +251,7 @@ const login = async (req, res) => {
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", 
     secure: process.env.NODE_ENV === "production",       
     maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
 });
 
 
@@ -299,6 +300,30 @@ const refreshToken=async(req,res)=>{
     catch(error){
         console.log("error in generating refresh token",error);
 
+        return res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
+
+const logout=async(req,res)=>{
+    try{
+          res.clearCookie("refreshToken",{
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+          })
+
+           return res.status(200).json({
+                success: true,
+                message: "Logged out successfully",
+            });
+
+    }
+    catch(error){
+        console.log("error in logout",error);
         return res.status(500).json({
             success:false,
             error:error
@@ -385,5 +410,6 @@ module.exports = {
     login,
     updateUserRole,
     updateIsActive,
-    refreshToken
+    refreshToken,
+    logout
 }

@@ -3,13 +3,14 @@ const router = express.Router();
 
 const {sendOtp,verifyOtp,
     refreshToken,
-    resendOtp,login,updateUserRole,updateIsActive}=require("../controllers/authController")
+    resendOtp,login,updateUserRole,updateIsActive,logout}=require("../controllers/authController")
 
 
 router.post('/send-otp', sendOtp)
 router.post('/verify-otp', verifyOtp)
 router.post('/resend-otp', resendOtp)
 router.post('/login', login)
+router.post('/logout',logout)
 router.post('/refresh-token',refreshToken);
 router.patch("/internal/update-role",updateUserRole);
 router.patch("/internal/update-isActive",updateIsActive);

@@ -5,6 +5,7 @@ export const authEndPoints={
    VERIFY_OTP:BASEURL + "/api/v1/auth/verify-otp",
    RESEND_OTP:BASEURL + "/api/v1/auth/resend-otp",
    LOGIN : BASEURL + "/api/v1/auth/login",
+   LOGOUT:BASEURL + "/api/v1/auth/logout"
 
 }
 

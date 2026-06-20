@@ -32,6 +32,11 @@ const StatusBadge = ({
       label: 'Cancelled',
       classes: 'bg-red-50 text-accent-red border-red-100',
     },
+    PAYMENT_COMPLETED: {
+      label: 'Completed',
+      classes: 'bg-green-50 text-accent-green border-green-100',
+    },
+
 
     // Driver availability / application statuses
     ONLINE: {

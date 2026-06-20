@@ -100,7 +100,7 @@ const DriverEarnings=()=>{
                   <span>{formatDate(log.requestedAt)}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-extrabold text-primary">₹{log.estimatedFare}</span>
+                  <span className="text-sm font-extrabold text-primary"> ₹{Number(log.estimatedFare).toFixed(2)}</span>
                   <StatusBadge status={log.status} />
                 </div>
               </div>

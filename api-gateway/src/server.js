@@ -25,7 +25,7 @@ app.use(
   })  
 );
 
-app.use(limiter);
+// app.use(limiter);
 
 
 app.use(morgan("dev"));

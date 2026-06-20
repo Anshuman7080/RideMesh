@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
-import { updateCurrentRideStatus } from '../slices/rideSlice';
+import { setCurrentRide, updateCurrentRideStatus } from '../slices/rideSlice';
 import { addNotification } from '../slices/notificationSlice';
 import showToastWithRedirect from '../components/Toast';
 import { useNavigate } from 'react-router-dom';
@@ -365,17 +365,20 @@ useEffect(() => {
       rideId: data.rideId,
       type: 'PAYMENT_SUCCESSFUL',
       title: 'Payment Received',
-      message: 'Payment of ₹${data.amount} has been settled for Ride Match.',
+      message: 'Payment has been settled for Ride Match.',
       isRead: false,
       createdAt: new Date().toISOString(),
     }));
    
     showToastWithRedirect({
       title:"Payment Received!",
-      message:`₹${data.amount} payment settled successfully!`,
+      message:`payment settled successfully!`,
       type:'Success',
       actionLabel:'View Earnings',
      },`/driver/earnings`);
+   
+    dispatch(setCurrentRide(null)); 
+
     
 
   };

@@ -363,6 +363,22 @@ async function handleEvent(
 
             break;
 
+        case "ride.paymentSuccessful":
+             
+            emitToUser(
+                "driver",
+                data.driverId,
+                "payment-successfull",
+                {
+                    rideId:
+                        data.rideId,
+                    status:"PAYMENT_COMPLETED"     
+                }
+            );
+
+
+             
+
         default:
 
             console.log(

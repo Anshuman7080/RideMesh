@@ -85,6 +85,13 @@ const ActiveRide=()=>{
         dispatch(getRideDetails({rideId,token}));
        },[currentRide, rideId, token]);
 
+         useEffect(()=>{
+               if(currentRide?.status==='COMPLETED'){
+                     navigate(`/driver/completed/${rideId}`)
+                    
+               }
+         },[currentRide])
+
     useEffect(()=>{
        setRiderId(currentRide?.riderId);
     },[currentRide]);

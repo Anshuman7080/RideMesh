@@ -28,7 +28,8 @@ export const rideEndPoints = {
   COMPLETE_RIDE: (rideId) => BASEURL + `/api/v1/rides/${rideId}/complete`,
   DRIVER_CANCEL: (rideId) => BASEURL + `/api/v1/rides/${rideId}/driver-cancel`,
   ACTIVE_RIDE:BASEURL+'/api/v1/rides/activeRide',
-  RIDERRIDEHISTORY: BASEURL +'/api/v1/rides/rider/history'
+  RIDERRIDEHISTORY: BASEURL +'/api/v1/rides/rider/history',
+  COMPLETE_PAYMENT:BASEURL + '/api/v1/rides/rider/payment'
 
 };
 

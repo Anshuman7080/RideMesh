@@ -30,12 +30,20 @@ const DriverCompleted=()=>{
            dispatch(rateRider({rideId,rating:selectedRating,token}))
     }
 
+
+    useEffect(()=>{
+         if(currentRide?.status==='PAYMENT_COMPLETED' || currentRide?.status==='CANCELLED' ){
+           navigate('/driver/earnings');
+         }
+    },[currentRide]);
+
     const handleContinue=()=>{
-           dispatch(resetBookingState());
+          //  dispatch(resetBookingState());
           navigate('/driver/home');
     }
 
-    const fare=currentRide ? currentRide.estimatedFare :130;
+   const fare = Number( (currentRide ? currentRide.estimatedFare : 130).toFixed(2));
+
     const distance=currentRide ? currentRide.distanceKm : 5.8;
 
      return (

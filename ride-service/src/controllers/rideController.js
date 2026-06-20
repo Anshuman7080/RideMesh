@@ -40,7 +40,7 @@ const createRide = async (req, res) => {
 
            const activeRide = await Ride.findOne({
                     riderId,
-                    status: { $nin: ["COMPLETED", "CANCELLED"] }
+                    status: { $nin: ["PAYMENT_COMPLETED", "CANCELLED"] }
                 });
 
             if (activeRide) {
@@ -409,7 +409,7 @@ const acceptRide = async (req, res) => {
 
           const activeRide = await Ride.findOne({
                     driverId,
-                    status: { $nin: ["COMPLETED", "CANCELLED"] }
+                    status: { $nin: ["PAYMENT_COMPLETED", "CANCELLED"] }
             });
 
             if (activeRide) {
@@ -825,15 +825,6 @@ const completeRide = async (req, res) => {
         ride.status = "COMPLETED";
         ride.completedAt = new Date();
 
-        // const rideRequest=await RideRequest.findOne({driverId:driverId});
-        // if(!rideRequest){
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "RideRequest not found"
-        //     });
-        // }
-        // rideRequest.status="COMPLETED"
-        // ride.completedAt = new Date();
        
         ride.finalFare = ride.estimatedFare;
 
@@ -1335,7 +1326,7 @@ const getActiveRide = async (req, res) => {
 
     const ride = await Ride.findOne({
       $or: [{ riderId: userId }, { driverId: userId }],
-      status: { $nin: ['COMPLETED', 'CANCELLED'] },
+      status: { $nin: ['PAYMENT_COMPLETED', 'CANCELLED'] },
     });
 
     if (!ride) {
@@ -1375,7 +1366,7 @@ try{
 
 const rideList = await Ride.find({
   driverId: userId,
-  status: 'COMPLETED'
+  status: 'PAYMENT_COMPLETED'
 });
 
 
@@ -1441,6 +1432,73 @@ const rideList = await Ride.find({
 }
 }
 
+const completePayment = async (req, res) => {
+    try {
+        const userId = req.headers['x-user-id'];
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        const { rideId } = req.body;
+
+        if (!rideId) {
+            return res.status(400).json({
+                success: false,
+                message: "RideID is required"
+            });
+        }
+
+        const ride = await Ride.findById(rideId);
+        if (!ride) {
+            return res.status(404).json({
+                success: false,
+                message: "No ride found"
+            });
+        }
+
+        if (ride.riderId != userId) {
+            return res.status(403).json({
+                success: false,
+                message: "This ride does not belong to you"
+            });
+        }
+
+        if (ride.status === 'PAYMENT_COMPLETED') {
+            return res.status(400).json({
+                success: false,
+                message: "Payment already done"
+            });
+        }
+
+        ride.status = "PAYMENT_COMPLETED";
+        await ride.save();
+
+        publishEvent("ride.paymentSuccessful", {
+            rideId,
+            riderId: userId,
+            driverId: ride.driverId,
+            
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Payment completed successfully"
+        });
+
+    } catch (error) {
+        console.log("Error in making payment", error);
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+
 module.exports = {
     createRide,
     getRideDetails,
@@ -1461,5 +1519,6 @@ module.exports = {
     getNearbyDrivers,
     getActiveRide,
     getListOfDriverRide,
-    getListOfRiderRide
+    getListOfRiderRide,
+    completePayment
 };

@@ -45,7 +45,8 @@ const rideSchema=new mongoose.Schema({
             "DRIVER_ARRIVED",
             "IN_PROGRESS",
             "COMPLETED",
-            "CANCELLED"
+            "CANCELLED",
+            "PAYMENT_COMPLETED"
         ],
         default:"REQUESTED"
     },

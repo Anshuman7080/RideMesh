@@ -211,7 +211,8 @@ const RideDetail = () => {
               </div>
               <div className="flex justify-between text-sm font-extrabold text-primary pt-1">
                 <span>Total Amount Charged</span>
-                <span>₹{ride.estimatedFare}</span>
+                <span>₹{Number(ride?.estimatedFare ?? 0).toFixed(2)}</span>
+
               </div>
             </div>
           </Card>)}

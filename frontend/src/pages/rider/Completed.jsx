@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Star, ShieldAlert, CheckCircle2, Navigation, Award, DollarSign } from 'lucide-react';
-import { getRideDetails, rateDriver } from '../../services/operations/rideAPI';
+import { completePayment, getRideDetails, rateDriver } from '../../services/operations/rideAPI';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 
@@ -32,7 +32,8 @@ const Completed=()=>{
 
 
    const handlePayNow=()=>{
-    navigate(`/rider/payment/${rideId}`);
+    dispatch(completePayment({rideId,token,navigate}));
+    
    }
 
    if(!currentRide)return null;
@@ -63,7 +64,10 @@ const Completed=()=>{
           <div className="grid grid-cols-3 gap-3 border-b border-gray-100 pb-5 text-center">
             <div className="space-y-1">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Fare</span>
-              <p className="text-base font-extrabold text-primary">₹{currentRide.estimatedFare}</p>
+               <p className="text-base font-extrabold text-primary">
+                   ₹{Number(currentRide?.estimatedFare ?? 0).toFixed(2)}
+             </p>
+
             </div>
             <div className="space-y-1 border-x border-gray-100">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Distance</span>
@@ -118,7 +122,8 @@ const Completed=()=>{
               className="font-bold flex items-center justify-center gap-1.5 py-3.5 animate-pulse-border bg-accent-green hover:bg-green-700"
               icon={DollarSign}
             >
-              Pay Now (₹{currentRide.estimatedFare})
+             Pay Now (₹{Number(currentRide?.estimatedFare ?? 0).toFixed(2)})
+
             </Button>
           </div>
         </Card>

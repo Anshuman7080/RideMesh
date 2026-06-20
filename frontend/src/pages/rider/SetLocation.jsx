@@ -70,7 +70,7 @@ const SetLocation = () => {
  
   const [pickupCoord, setPickupCoord] = useState([initialPickup.latitude, initialPickup.longitude]);
   const [dropoffCoord, setDropoffCoord] = useState([initialDropoff.latitude, initialDropoff.longitude]);
-  
+  const {currentRide}=useSelector((state)=>state.ride);
 
   const [pickupAddr, setPickupAddr] = useState(initialPickup.address);
   const [dropoffAddr, setDropoffAddr] = useState(initialDropoff.address);
@@ -277,6 +277,7 @@ const getCoordinates = async (address) => {
           variant="primary"
           fullWidth
           size="lg"
+          disabled={currentRide}
           onClick={handleConfirm}
           className="font-bold flex items-center justify-center gap-1.5"
           icon={CheckCircle2}

@@ -72,7 +72,10 @@ const RideHistory = () => {
                     <span>{formatDate(ride.requestedAt)}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-extrabold text-primary">₹{ride.estimatedFare}</span>
+                    <span className="text-sm font-extrabold text-primary">
+                              ₹{Number(ride?.estimatedFare ?? 0).toFixed(2)}
+                            </span>
+
                     <StatusBadge status={ride.status} />
                   </div>
                 </div>

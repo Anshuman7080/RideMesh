@@ -18,7 +18,7 @@ const showToastWithRedirect = (options, redirectPath) => {
           padding: "5px 10px",
           cursor: "pointer"
         }}
-        onClick={() => (window.location.href = redirectPath)}
+        onClick={redirectPath ? () => (window.location.href = redirectPath) : undefined}
       >
         {actionLabel || "Go"}
       </button>
@@ -29,5 +29,6 @@ const showToastWithRedirect = (options, redirectPath) => {
     }
   );
 };
+
 
 export default showToastWithRedirect;

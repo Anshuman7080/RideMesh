@@ -81,7 +81,13 @@ const LiveTracking=()=>{
     return [currentRide.dropoff.latitude, currentRide.dropoff.longitude];
   }, [currentRide?.dropoff?.latitude, currentRide?.dropoff?.longitude]);
 
-
+ console.log("currnetRide is ",currentRide);
+  useEffect(()=>{
+        if(currentRide?.status==='COMPLETED'){
+              navigate(`/rider/completed/${rideId}`)
+             
+        }
+  },[currentRide])
 
 useEffect(()=>{
     setDriverId(currentRide?.driverId);

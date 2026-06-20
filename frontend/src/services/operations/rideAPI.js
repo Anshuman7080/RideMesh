@@ -12,11 +12,12 @@ import { useNavigate } from "react-router-dom";
 
 import {rideEndPoints} from "../apis";
 import { driverEndPoints } from "../apis";
+import showToastWithRedirect from "../../components/Toast";
 const {CREATE_RIDE,GET_DRIVER_REQUESTS,ACCEPT_RIDE,
   GET_RIDE_DETAILS,
   CANCEL_RIDE,RATE_DRIVER,RATE_RIDER,REJECT_RIDE
   ,DRIVER_ARRIVED,START_RIDE,COMPLETE_RIDE,DRIVER_CANCEL,ACTIVE_RIDE,
-  RIDERRIDEHISTORY
+  RIDERRIDEHISTORY,COMPLETE_PAYMENT
 }=rideEndPoints
 
 const {GETDRIVERDETAILFORRIDE} ={driverEndPoints};
@@ -197,6 +198,13 @@ export const rateDriver =({ rideId, rating ,token}) =>
       );
 
       console.log("response of rating driver",response);
+      showToastWithRedirect({
+      title:"Rating Updated!",
+      message:`Successfully rated driver`,
+      type:'Success',
+      actionLabel:'Rating Updated',
+     })
+
     } catch (error) {
 
       console.log("error in rating driver",error);
@@ -358,6 +366,12 @@ export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
       });
 
       console.log("res of rating rider",response);
+      showToastWithRedirect({
+      title:"Rating Updated!",
+      message:`Successfully rated rider`,
+      type:'Success',
+      actionLabel:'Rating Updated',
+     })
     
     } catch (error) {
 
@@ -371,7 +385,7 @@ export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
     }
   };
 
-export const getRideDetails=({rideId,token})=>async(dispatch)=>{
+export const getRideDetails=({rideId,token,navigate})=>async(dispatch)=>{
 
     try{
 
@@ -397,6 +411,7 @@ export const getRideDetails=({rideId,token})=>async(dispatch)=>{
                   "Error in getting Ride Details!"
               )
             );
+          navigate('/driver/home');
 
     }finally{
 
@@ -445,3 +460,36 @@ export const getRideHistory = ({ token }) => async (dispatch) => {
     console.log("Error data", error.response?.data);
   }
 };
+
+
+export const completePayment=({rideId,token,navigate})=>async(dispatch)=>{
+   try{
+    
+    const response = await apiConnector(
+      "PATCH",
+      COMPLETE_PAYMENT,
+      {rideId},
+      {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    );
+
+    console.log("Response of payment",response);
+    dispatch(setCurrentRide(null));
+    navigate('/rider/payment/success')
+  
+
+   }
+   catch(error){
+    console.log("Error in payment",error);
+    console.log("Error in payment",error?.response?.data);
+     dispatch(
+        setError(
+          error.response?.data?.message ||
+            "Failed to make payment"
+        )
+      );
+
+   }
+}

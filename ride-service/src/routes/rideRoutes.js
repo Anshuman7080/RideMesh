@@ -10,7 +10,7 @@ const {
     getOnlineDrivers,getNearbyDrivers,
     getActiveRide,
     getListOfDriverRide,
-    getListOfRiderRide
+    getListOfRiderRide,completePayment
 } = require("../controllers/rideController");
 
 const {publishEvent}=require("../utils/eventBus");
@@ -38,6 +38,8 @@ router.post("/create", createRide);
 router.get('/driversRide',getListOfDriverRide)
 
 router.get("/rider/history",getListOfRiderRide);
+
+router.patch("/rider/payment",completePayment)
 
 
 router.get("/request", getDriverRequests);

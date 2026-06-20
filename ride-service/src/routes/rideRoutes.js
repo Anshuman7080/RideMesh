@@ -9,7 +9,8 @@ const {
     setDriverOnline,setDriverOffline,
     getOnlineDrivers,getNearbyDrivers,
     getActiveRide,
-    getListOfDriverRide
+    getListOfDriverRide,
+    getListOfRiderRide
 } = require("../controllers/rideController");
 
 const {publishEvent}=require("../utils/eventBus");
@@ -31,8 +32,13 @@ router.get("/test-rabbit", async (req, res) => {
 });
 
 router.get('/activeRide',getActiveRide)
+
 router.post("/create", createRide);
+
 router.get('/driversRide',getListOfDriverRide)
+
+router.get("/rider/history",getListOfRiderRide);
+
 
 router.get("/request", getDriverRequests);
 
@@ -43,8 +49,6 @@ router.get("/:rideId", getRideDetails);
 router.patch( "/:rideId/accept", acceptRide);
 
 router.patch("/:rideId/reject",rejectRide);
-
-
 
 
 
@@ -70,6 +74,7 @@ router.get("/drivers/online",getOnlineDrivers);
 
 
 router.get("/drivers/nearby",getNearbyDrivers );
+
 
 
 

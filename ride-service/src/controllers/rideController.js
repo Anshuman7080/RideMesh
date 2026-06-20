@@ -1400,6 +1400,46 @@ const rideList = await Ride.find({
 }
 }
 
+const getListOfRiderRide=async(req,res)=>{
+try{
+ 
+   const userId = req.headers['x-user-id'];
+
+   console.log("userId is",userId);
+
+ if(!userId){
+    return res.status(401).json({
+        success:false,
+        message:"Unauthorized"
+    })
+ }
+
+const rideList = await Ride.find({
+  riderId: userId,
+  status: { $in: ['COMPLETED', 'CANCELLED'] }
+});
+
+
+ if(!rideList){
+    return res.status(404).json({
+        success:false,
+        message:"No ride found"
+    })
+ }
+
+ return res.status(200).json({
+    success:true,
+    rideList
+ });
+
+}catch(error){
+    console.log("error in getting list of rides for driver",error);
+    return res.status(500).json({
+        success:false,
+        error:error
+    })
+}
+}
 
 module.exports = {
     createRide,
@@ -1420,5 +1460,6 @@ module.exports = {
     getOnlineDrivers,
     getNearbyDrivers,
     getActiveRide,
-    getListOfDriverRide
+    getListOfDriverRide,
+    getListOfRiderRide
 };

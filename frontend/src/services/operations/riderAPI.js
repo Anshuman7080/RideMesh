@@ -8,17 +8,34 @@ import {
 
 import { updateUserProfile } from "../../slices/authSlice";
 import { riderEndPoints } from "../apis";
-const {GETRIDERDETAILFORRIDE}=riderEndPoints
+import { logoutUser } from "./authAPI";
+const {GETRIDERDETAILFORRIDE,GET_RIDER_PROFILE,UPDATE_RIDER_PROFILE,DELETE_RIDER_PROFILE}=riderEndPoints
 
-export const getRiderProfile = () => async (dispatch) => {
+export const getRiderProfile = ({token}) => async (dispatch) => {
   dispatch(setLoading(true));
   dispatch(setError(null));
 
   try {
-    const response = await apiConnector("/riders/profile");
+     const response=await apiConnector("GET",GET_RIDER_PROFILE,{},{
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+     })   
 
-    dispatch(setProfile(response.data.rider));
+     console.log("response of getRiderProfile is",response);
+
+     dispatch(setProfile(response?.data?.details))
+
   } catch (error) {
+
+    console.log("Error in getting rider profile",error);
+    console.log("Error in getting rider profile",error.response?.data)
+
+    dispatch(
+            setError(
+              error.response?.data?.message ||
+                "Failed to get Rider profile."
+            )
+          );
    
   } finally {
     dispatch(setLoading(false));
@@ -27,39 +44,65 @@ export const getRiderProfile = () => async (dispatch) => {
 
 
 
-export const updateRiderDetails =
-  () =>
-  async (dispatch) => {
+export const updateRiderDetails =({name,phone,token}) =>async (dispatch) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
 
     try {
-      const response = await apiConnector("/riders/profile", {
+      const response = await apiConnector("PUT",UPDATE_RIDER_PROFILE, {
         name,
         phone,
-        profilePhoto,
+        
+      },{
+        Authorization: `Bearer ${token}`,
+       "Content-Type": "application/json",
       });
 
-     
+     console.log("response of updating rider profile",response);
+
+     dispatch(setProfile(response?.data?.details))
+
 
     } catch (error) {
      
+      console.log("Error in updating rider profile",error);
+      console.log("Error in updating ride profile",error?.response?.data);
+       dispatch(
+            setError(
+              error.response?.data?.message ||
+                "Failed to update details"
+            )
+          );
     } finally {
       dispatch(setLoading(false));
     }
   };
 
 
-export const deactivateRider = () => async (dispatch) => {
+export const deactivateRider = ({token}) => async (dispatch) => {
   dispatch(setLoading(true));
   dispatch(setError(null));
 
   try {
-    await apiConnector("/riders/profile");
+  const response=  await apiConnector("DELETE",DELETE_RIDER_PROFILE,{},{
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    });
 
-    dispatch(setProfile(null));
-  } catch (error) {
+    console.log("response of deleting rider account",response);
    
+    dispatch(setProfile(null));
+    dispatch(logoutUser());
+  } catch (error) {
+    console.log("Error in deleting rider account",error);
+    console.log("Error in deleting rider account",error?.response?.data);
+    dispatch(
+            setError(
+              error.response?.data?.message ||
+                "Failed to delete rider accunt"
+            )
+          );
+    
   } finally {
     dispatch(setLoading(false));
   }

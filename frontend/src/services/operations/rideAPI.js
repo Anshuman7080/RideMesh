@@ -15,7 +15,8 @@ import { driverEndPoints } from "../apis";
 const {CREATE_RIDE,GET_DRIVER_REQUESTS,ACCEPT_RIDE,
   GET_RIDE_DETAILS,
   CANCEL_RIDE,RATE_DRIVER,RATE_RIDER,REJECT_RIDE
-  ,DRIVER_ARRIVED,START_RIDE,COMPLETE_RIDE,DRIVER_CANCEL,ACTIVE_RIDE
+  ,DRIVER_ARRIVED,START_RIDE,COMPLETE_RIDE,DRIVER_CANCEL,ACTIVE_RIDE,
+  RIDERRIDEHISTORY
 }=rideEndPoints
 
 const {GETDRIVERDETAILFORRIDE} ={driverEndPoints};
@@ -47,21 +48,7 @@ export const createRide =({ pickup, dropoff, distanceKm,token}) =>
 
       dispatch(setCurrentRide(ride));
 
-      // update history
-      const saved =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      const exists = saved.find((r) => r._id === ride._id);
-
-      let updatedHistory;
-
-      if (!exists) {
-        updatedHistory = [ride, ...saved];
-      } else {
-        updatedHistory = saved;
-      }
-
-      dispatch(setRideHistory(updatedHistory));
+    
     } catch (error) {
       console.log("error in creating ride",error);
       console.log(error.response?.data);
@@ -181,16 +168,6 @@ export const cancelRide =({ rideId, reason ,token,navigate}) =>
 
       dispatch(setBookingStatus("cancelled"));
 
-      const history =
-        JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      const updated = history.map((r) =>
-        r._id === rideId
-          ? { ...r, status: "CANCELLED" }
-          : r
-      );
-
-      dispatch(setRideHistory(updated));
        navigate('/rider/home');
     } catch (error) {
       console.log("Error in cancelling ride",error);
@@ -209,7 +186,7 @@ export const cancelRide =({ rideId, reason ,token,navigate}) =>
 export const rateDriver =({ rideId, rating ,token}) =>
   async (dispatch) => {
     try {
-      console.log("rideId in thunk",rideId);
+    
    const response=   await apiConnector("POST", RATE_DRIVER(rideId),{
         rating,
       },
@@ -220,15 +197,6 @@ export const rateDriver =({ rideId, rating ,token}) =>
       );
 
       console.log("response of rating driver",response);
-      const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      const updated = history.map((r) =>
-        r._id === rideId
-          ? { ...r, riderRating: rating }
-          : r
-      );
-
-      dispatch(setRideHistory(updated));
     } catch (error) {
 
       console.log("error in rating driver",error);
@@ -339,22 +307,7 @@ export const completeRide = ({rideId,token,navigate}) => async (dispatch) => {
 
       dispatch(setCurrentRide(ride));
 
-      // const history =
-      //   JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      // const exists = history.find((r) => r._id === ride._id);
-
-      // let updated;
-
-      // if (!exists) {
-      //   updated = [ride, ...history];
-      // } else {
-      //   updated = history.map((r) =>
-      //     r._id === ride._id ? ride : r
-      //   );
-      // }
-
-      // dispatch(setRideHistory(updated));
+      
       console.log("ride id in complted",ride?._id);
       navigate(`/driver/completed/${ride?._id}`);
     } catch (error) {
@@ -381,15 +334,7 @@ export const driverCancelRide = ({ rideId, reason,token,navigate }) =>
      
       console.log("res of driver cancelling ride",res);
 
-      const history = JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      const updated = history.map((r) =>
-        r._id === rideId
-          ? { ...r, status: "CANCELLED" }
-          : r
-      );
-
-      dispatch(setRideHistory(updated));
+      
       navigate('/driver/home')
     } catch (error) {
       console.log("Errr in cancelling ride by driver",error.response?.data?.message);
@@ -413,15 +358,7 @@ export const rateRider =({ rideId, rating,token }) =>async (dispatch) => {
       });
 
       console.log("res of rating rider",response);
-      // const history =JSON.parse(localStorage.getItem("rideHistory")) || [];
-
-      // const updated = history.map((r) =>
-      //   r._id === rideId
-      //     ? { ...r, driverRating: rating }
-      //     : r
-      // );
-
-      dispatch(setRideHistory(updated));
+    
     } catch (error) {
 
       console.log("Error in rating rider",error.response?.data?.message);
@@ -485,3 +422,26 @@ export const getActiveRide=({token})=>async(dispatch)=>{
       console.log("Errr",error.response?.data)
   }
 }
+
+
+export const getRideHistory = ({ token }) => async (dispatch) => {
+  try {
+
+    const response = await apiConnector(
+      "GET",
+      RIDERRIDEHISTORY,
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    );
+
+    console.log("response of ride history for rider", response);
+
+    dispatch(setRideHistory(response.data?.rideList));
+  } catch (error) {
+    console.log("Error in getting ride history", error);
+    console.log("Error data", error.response?.data);
+  }
+};

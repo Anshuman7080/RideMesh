@@ -15,10 +15,6 @@ const riderSchema=new mongoose.Schema({
         type:String,
         trim :true,
     },
-    profilePhoto:{
-        type:String,
-        default:"",
-    },
     rating:{
         type:Number,
         default:5,

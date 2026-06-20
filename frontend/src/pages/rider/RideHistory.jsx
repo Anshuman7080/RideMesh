@@ -1,48 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate as useRoutingNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { History, Calendar, MapPin, ArrowRight, Star } from 'lucide-react';
 import Card from '../../components/Card';
 import StatusBadge from '../../components/StatusBadge';
+import { getRideHistory } from '../../services/operations/rideAPI';
 
 const RideHistory = () => {
   const navigate = useRoutingNavigate();
+  const dispatch=useDispatch();
   const { rideHistory } = useSelector((state) => state.ride);
+  const {token}=useSelector((state)=>state.auth);
 
-  const mockHistory = [
-    {
-      _id: 'mock_ride_1',
-      requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-      pickup: { address: 'Assi Ghat, Varanasi, UP' },
-      dropoff: { address: 'BHU Main Gate, Lanka, Varanasi' },
-      estimatedFare: 110,
-      distanceKm: 5.2,
-      status: 'COMPLETED',
-      riderRating: 5,
-    },
-    {
-      _id: 'mock_ride_2',
-      requestedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-      pickup: { address: 'Varanasi Cantt Station, Varanasi' },
-      dropoff: { address: 'Dashashwamedh Ghat Road, Varanasi' },
-      estimatedFare: 134,
-      distanceKm: 7.1,
-      status: 'COMPLETED',
-      riderRating: 4,
-    },
-    {
-      _id: 'mock_ride_3',
-      requestedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      pickup: { address: 'Godowlia Circle, Varanasi' },
-      dropoff: { address: 'Sarnath Archaeological Museum, Sarnath' },
-      estimatedFare: 170,
-      distanceKm: 10.3,
-      status: 'CANCELLED',
-      cancellationReason: 'Driver took too long to arrive',
-    }
-  ];
 
-  const displayList = rideHistory.length > 0 ? rideHistory : mockHistory;
+  const displayList = rideHistory
 
   const formatDate = (dateString) => {
     try {
@@ -58,6 +29,11 @@ const RideHistory = () => {
       return dateString;
     }
   };
+
+  useEffect(()=>{
+    console.log("coming in ridehistory");
+    dispatch(getRideHistory({token}));
+  },[]);
 
   return (
     <div className="max-w-2xl mx-auto w-full px-4 py-8 font-sans space-y-6">

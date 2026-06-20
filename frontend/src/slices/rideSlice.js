@@ -1,9 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { CloudSnow } from "lucide-react";
 
-const savedHistory = localStorage.getItem("rideHistory")
-  ? JSON.parse(localStorage.getItem("rideHistory"))
-  : [];
+
 
 const initialState = {
   pickup: null,
@@ -12,7 +10,7 @@ const initialState = {
   estimatedFare: 0,
   selectedVehicleType: "car",
   currentRide: null,
-  rideHistory: savedHistory,
+  rideHistory: [],
   nearbyDrivers: [],
   driverRequests: [],
   loading: false,

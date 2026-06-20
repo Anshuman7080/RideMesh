@@ -27,6 +27,7 @@ export const rideEndPoints = {
   COMPLETE_RIDE: (rideId) => BASEURL + `/api/v1/rides/${rideId}/complete`,
   DRIVER_CANCEL: (rideId) => BASEURL + `/api/v1/rides/${rideId}/driver-cancel`,
   ACTIVE_RIDE:BASEURL+'/api/v1/rides/activeRide',
+  RIDERRIDEHISTORY: BASEURL +'/api/v1/rides/rider/history'
 
 };
 
@@ -50,5 +51,20 @@ export const driverEndPoints = {
 };
 
 export const riderEndPoints={
-  GETRIDERDETAILFORRIDE:(riderId)=> BASEURL +  `/api/v1/riders/${riderId}/ride`
+  GETRIDERDETAILFORRIDE:(riderId)=> BASEURL +  `/api/v1/riders/${riderId}/ride`,
+ 
+  GET_RIDER_PROFILE: BASEURL + "/api/v1/riders/profile",
+  UPDATE_RIDER_PROFILE: BASEURL + "/api/v1/riders/profile",
+  DELETE_RIDER_PROFILE: BASEURL + "/api/v1/riders/profile",
+
+
 }
+
+export const notificationEndPoints = {
+
+  GET_MY_NOTIFICATIONS: `${BASEURL}/api/v1/notifications/my-notifications`,
+
+  MARK_AS_READ: (notificationId) =>`${BASEURL}/api/v1/notifications/${notificationId}/read`,
+
+  MARK_ALL_AS_READ: `${BASEURL}/api/v1/notifications/read-all`,
+};

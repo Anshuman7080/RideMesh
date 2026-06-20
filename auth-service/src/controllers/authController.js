@@ -217,6 +217,13 @@ const login = async (req, res) => {
             });
         }
 
+        if(!user.isActive){
+            return res.status(404).json({
+                success:false,
+                message:"Account not found"
+            })
+        }
+
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
@@ -296,10 +303,48 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+const updateIsActive = async (req, res) => {
+  try {
+    const { userId, status } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "UserId is required",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isActive = status;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Status changed successfully",
+    });
+  } catch (error) {
+    console.error("Error updating isActive:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update status",
+    });
+  }
+};
+
 module.exports = {
     sendOtp,
     verifyOtp,
     resendOtp,
     login,
-    updateUserRole
+    updateUserRole,
+    updateIsActive
 }

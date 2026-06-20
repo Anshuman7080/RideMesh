@@ -18,9 +18,15 @@ const PORT = process.env.PORT || 5000;
 // console.log("AUTH_SERVICE_URL =", process.env.AUTH_SERVICE_URL);
 // app.use(express.json());
 
+app.use(
+  cors({
+  origin: "http://localhost:5173",
+    credentials: true,
+  })  
+);
+
 app.use(limiter);
 
-app.use(cors());
 
 app.use(morgan("dev"));
 
@@ -34,12 +40,7 @@ app.use(morgan("dev"));
 //     next();
 // });
 
-app.use(
-  cors({
-  origin: "http://localhost:5173",
-    credentials: true,
-  })  
-);
+
 
 app.use("/api/v1/auth", authProxy);
 app.use("/api/v1/riders", authMiddleware, userProxy);

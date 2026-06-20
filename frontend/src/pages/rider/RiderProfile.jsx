@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { User, Phone, Trash2, Camera, ShieldAlert, Award, ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
+import { User, Phone, Trash2, ShieldAlert, Award, ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
 import { getRiderProfile, updateRiderDetails, deactivateRider } from '../../services/operations/riderAPI';
 import { getDriverProfile } from '../../services/operations/driverAPI';
 import { setRole, logout } from '../../slices/authSlice';
@@ -14,24 +14,21 @@ const RiderProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.auth);
+  const { user,token } = useSelector((state) => state.auth);
   const { profile: riderProfile, loading: riderLoading, error: riderError } = useSelector((state) => state.rider);
   const { profile: driverProfile, loading: driverLoading } = useSelector((state) => state.driver);
+
+  console.log("riderProfile is",riderProfile);
+  console.log("driver Profile is",driverProfile)
 
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    profilePhoto: '',
   });
 
   const [editMode, setEditMode] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
 
-  // Fetch rider details and driver application profile on mount
-  useEffect(() => {
-    dispatch(getRiderProfile());
-    dispatch(getDriverProfile());
-  }, [dispatch]);
 
   // Sync state when profile is loaded
   useEffect(() => {
@@ -39,13 +36,11 @@ const RiderProfile = () => {
       setFormData({
         name: riderProfile.name || '',
         phone: riderProfile.phone || '',
-        profilePhoto: riderProfile.profilePhoto || '',
       });
     } else if (user) {
       setFormData({
         name: user.name || '',
         phone: '',
-        profilePhoto: '',
       });
     }
   }, [riderProfile, user]);
@@ -66,34 +61,20 @@ const RiderProfile = () => {
       updateRiderDetails({
         name: formData.name.trim(),
         phone: formData.phone.trim(),
-        profilePhoto: formData.profilePhoto.trim(),
+        token
       })
     )
-      .unwrap()
-      .then(() => {
-        setEditMode(false);
-        alert('Profile updated successfully.');
-      })
-      .catch((err) => {
-        alert(err || 'Failed to update profile');
-      });
+      setEditMode(false);
+      
   };
 
   const handleDeactivate = () => {
     if (window.confirm('WARNING: Are you sure you want to deactivate your RideMesh account? This action will disable your profile and log you out.')) {
       setDeactivating(true);
-      dispatch(deactivateRider())
-        .unwrap()
-        .then(() => {
-          setDeactivating(false);
-          alert('Your account has been deactivated.');
-          dispatch(logout());
-          navigate('/signup');
-        })
-        .catch((err) => {
-          setDeactivating(false);
-          alert(err || 'Deactivation failed.');
-        });
+      dispatch(deactivateRider({token}))
+        
+      setDeactivating(false);
+         
     }
   };
 
@@ -123,30 +104,9 @@ const RiderProfile = () => {
             {/* Avatar section */}
             <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
               <div className="relative">
-                {formData.profilePhoto ? (
-                  <img
-                    src={formData.profilePhoto}
-                    alt="Profile"
-                    className="h-16 w-16 rounded-full object-cover border border-gray-200 shadow-sm"
-                  />
-                ) : (
-                  <div className="h-16 w-16 rounded-full bg-accent-blue text-white flex items-center justify-center font-bold text-xl uppercase shadow-sm">
-                    {formData.name ? formData.name[0] : 'U'}
-                  </div>
-                )}
-                {editMode && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = prompt('Enter image URL for profile photo:');
-                      if (url) setFormData(prev => ({ ...prev, profilePhoto: url }));
-                    }}
-                    className="absolute -bottom-1 -right-1 p-1.5 bg-primary text-white hover:bg-primary-light rounded-full shadow-md transition-all focus:outline-none"
-                    title="Change photo"
-                  >
-                    <Camera size={12} />
-                  </button>
-                )}
+                <div className="h-16 w-16 rounded-full bg-accent-blue text-white flex items-center justify-center font-bold text-xl uppercase shadow-sm">
+                  {formData.name ? formData.name[0] : 'U'}
+                </div>
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-primary">{formData.name || 'User'}</h4>
@@ -181,20 +141,6 @@ const RiderProfile = () => {
               onChange={handleChange}
               disabled={!editMode || riderLoading}
             />
-
-            {/* Photo URL display in edit mode */}
-            {editMode && (
-              <Input
-                label="Profile Photo URL"
-                type="text"
-                id="profilePhoto"
-                placeholder="Enter image URL"
-                icon={Camera}
-                value={formData.profilePhoto}
-                onChange={handleChange}
-                disabled={riderLoading}
-              />
-            )}
 
             {/* Action buttons */}
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">

@@ -12,23 +12,22 @@ const Notifications = () => {
   const dispatch = useDispatch();
 
   const { notifications, unreadCount, loading, error } = useSelector((state) => state.notification);
+  const {token}=useSelector((state)=>state.auth);
 
   useEffect(() => {
-    dispatch(getMyNotifications());
+    // dispatch(getMyNotifications());
   }, [dispatch]);
 
-  const handleMarkRead = (id, isRead) => {
+  const handleMarkRead = (notificationId, isRead) => {
     if (!isRead) {
-      dispatch(markRead(id));
+      dispatch(markRead({notificationId,token}));
     }
   };
 
   const handleMarkAllRead = () => {
     if (unreadCount > 0) {
-      dispatch(markAllRead())
-        .unwrap()
-        .then(() => alert('All notifications marked as read'))
-        .catch((err) => alert(err || 'Failed to update notifications'));
+      dispatch(markAllRead({token}));
+      
     }
   };
 

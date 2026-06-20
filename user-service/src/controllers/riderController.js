@@ -1,5 +1,6 @@
 
 const Rider=require("../models/riderSchema");
+const { updateUserActiveStatus } = require("../services/authService");
 
 
 const createRider = async (req, res) => {
@@ -7,8 +8,7 @@ const createRider = async (req, res) => {
     const {
       userId,
       name,
-      phone,
-      profilePhoto
+      phone
     } = req.body;
 
     if (!userId || !name) {
@@ -33,7 +33,7 @@ const createRider = async (req, res) => {
       userId,
       name,
       phone,
-      profilePhoto,
+      
     });
 
     return res.status(201).json({
@@ -102,9 +102,9 @@ const updateRiderDetails = async (req, res) => {
       });
     }
 
-    const { name, phone, profilePhoto } = req.body;
+    const { name, phone } = req.body;
 
-    if (!name && !phone && !profilePhoto) {
+    if (!name && !phone ) {
       return res.status(400).json({
         success: false,
         message: "At least one field is required",
@@ -125,7 +125,7 @@ const updateRiderDetails = async (req, res) => {
 
     if (name) rider.name = name;
     if (phone) rider.phone = phone;
-    if (profilePhoto) rider.profilePhoto = profilePhoto;
+  
 
     await rider.save();
 
@@ -160,6 +160,7 @@ const deleteRider = async (req, res) => {
       userId,
       isActive: true,
     });
+    console.log("rider is",userId,rider);
 
     if (!rider) {
       return res.status(404).json({
@@ -167,8 +168,18 @@ const deleteRider = async (req, res) => {
         message: "Rider not found",
       });
     }
-
-    rider.isActive = false;
+    
+    try{
+        await updateUserActiveStatus(userId,false);
+        rider.isActive = false;
+    }
+    catch(error){
+      return res.status(400).json({
+        success:false,
+        message:"failed to delete account"
+      })
+    }
+    
 
     await rider.save();
 

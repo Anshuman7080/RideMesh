@@ -28,7 +28,7 @@ const notificationSlice=createSlice({
         markNotificationRead:(state,action)=>{
             const notificationId=action.payload;
             const notification=state.notifications.find(
-                (n)=>n/_id===notificationId
+                (n)=>n._id===notificationId
             )
 
             if(notification && !notification.isRead){

@@ -36,6 +36,7 @@ import { ToastContainer } from "react-toastify";
 import { useSocket } from './context/SocketProvider';
 import { getActiveRide } from './services/operations/rideAPI';
 import { getDriverProfile } from './services/operations/driverAPI';
+import { getRiderProfile } from './services/operations/riderAPI';
 
 const RiderLayout=({children,activeTabId})=>{
   const navigate=useNavigate();
@@ -46,7 +47,7 @@ const RiderLayout=({children,activeTabId})=>{
 
 useEffect(()=>{
   if(user){
-    dispatch(getMyNotifications());
+    dispatch(getMyNotifications({token}));
   }
 },[dispatch,user]);
 
@@ -60,6 +61,13 @@ useEffect(()=>{
     dispatch(getActiveRide({token}))
   }
 },[])
+
+useEffect(()=>{
+  if(user){
+    dispatch(getRiderProfile({token}));
+  }
+},[])
+
 const handleLogout=()=>{
   dispatch(logoutUser());
   navigate('/login');
@@ -104,11 +112,11 @@ const DriverLayout = ({ children,activeTabId }) => {
   };
 
 
-  useEffect(()=>{
-  if(user){
-    dispatch(getMyNotifications());
-  }
-},[dispatch,user]);
+//   useEffect(()=>{
+//   if(user){
+//     dispatch(getMyNotifications());
+//   }
+// },[dispatch,user]);
 
 useEffect(()=>{
   if(user){
@@ -354,7 +362,9 @@ function App() {
           path="/driver/apply"
           element={
             <ProtectedRoute allowedRoles={['rider']}>
+            <RiderLayout >
               <DriverApply />
+              </RiderLayout>
             </ProtectedRoute>
           }
         />

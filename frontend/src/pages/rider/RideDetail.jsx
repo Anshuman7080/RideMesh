@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { ArrowLeft, Calendar, MapPin, Receipt, Star, Info, User, Car } from 'lucide-react';
-import { getRideDetails, rateDriver } from '../../services/operations/rideAPI';
+import { getRideHistory, rateDriver } from '../../services/operations/rideAPI';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import StatusBadge from '../../components/StatusBadge';
@@ -41,63 +41,46 @@ const RideDetail = () => {
   const dispatch = useDispatch();
 
   const { rideHistory } = useSelector((state) => state.ride);
+  const { token } = useSelector((state) => state.auth);
+
   const [ride, setRide] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ratingVal, setRatingVal] = useState(0);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
-  // Mock past rides 
-  const mockHistory = [
-    {
-      _id: 'mock_ride_1',
-      requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      pickup: { latitude: 25.3102, longitude: 82.9815, address: 'Assi Ghat, Varanasi, UP' },
-      dropoff: { latitude: 25.2677, longitude: 82.9912, address: 'BHU Main Gate, Lanka, Varanasi' },
-      estimatedFare: 110,
-      distanceKm: 5.2,
-      status: 'COMPLETED',
-      riderRating: 5,
-      driverId: 'drv_mock_1',
-    },
-    {
-      _id: 'mock_ride_2',
-      requestedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      pickup: { latitude: 25.3284, longitude: 82.9972, address: 'Varanasi Cantt Station, Varanasi' },
-      dropoff: { latitude: 25.3176, longitude: 82.9739, address: 'Dashashwamedh Ghat Road, Varanasi' },
-      estimatedFare: 134,
-      distanceKm: 7.1,
-      status: 'COMPLETED',
-      riderRating: null, // not rated yet
-      driverId: 'drv_mock_1',
-    },
-    {
-      _id: 'mock_ride_3',
-      requestedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      pickup: { latitude: 25.3212, longitude: 82.9865, address: 'Godowlia Circle, Varanasi' },
-      dropoff: { latitude: 25.3812, longitude: 83.0215, address: 'Sarnath Archaeological Museum, Sarnath' },
-      estimatedFare: 170,
-      distanceKm: 10.3,
-      status: 'CANCELLED',
-      cancellationReason: 'Driver took too long to arrive',
-    }
-  ];
 
   useEffect(() => {
-    
-    const mockRide = mockHistory.find(r => r._id === rideId);
-    if (mockRide) {
-      setRide(mockRide);
-      setRatingVal(mockRide.riderRating || 0);
-      setLoading(false);
+    dispatch(getRideHistory({ token }));
+  }, [dispatch, token]);
+
+  
+  useEffect(() => {
+    if (!rideHistory || rideHistory.length === 0) {
       return;
     }
 
+    const found = rideHistory.find((r) => r?._id === rideId);
 
-  }, [rideId, rideHistory, dispatch]);
+    if (found) {
+      setRide(found);
+      setRatingVal(found.riderRating || 0);
+    } else {
+      setRide(null);
+    }
+    setLoading(false);
+  }, [rideId, rideHistory]);
 
-  const handleRateSubmit = (selectedRating) => {
-    
-  };
+
+   const handleRateSubmit=(selectedRating)=>{
+
+    setRatingVal(selectedRating);
+
+    setRatingSubmitting(true);
+
+     dispatch(rateDriver({rideId,rating:selectedRating,token}))
+    setRatingSubmitting(false);
+
+   }
 
   const formatDate = (dateString) => {
     try {
@@ -130,8 +113,8 @@ const RideDetail = () => {
     );
   }
 
-  const pickupPos = [ride.pickup.latitude, ride.pickup.longitude];
-  const dropoffPos = [ride.dropoff.latitude, ride.dropoff.longitude];
+  const pickupPos = [ride.pickup?.latitude, ride.pickup?.longitude];
+  const dropoffPos = [ride.dropoff?.latitude, ride.dropoff?.longitude];
   const routeLine = [pickupPos, dropoffPos];
 
   return (
@@ -208,7 +191,7 @@ const RideDetail = () => {
           </Card>
 
          
-          <Card padding="normal" className="space-y-4 border-gray-150 shadow-sm">
+         {ride.status==='COMPLETED' && ( <Card padding="normal" className="space-y-4 border-gray-150 shadow-sm">
             <h3 className="text-xs font-bold text-primary-darkgray uppercase tracking-wider flex items-center gap-1.5">
               <Receipt size={14} className="text-accent-blue" /> Receipt Invoice
             </h3>
@@ -231,7 +214,7 @@ const RideDetail = () => {
                 <span>₹{ride.estimatedFare}</span>
               </div>
             </div>
-          </Card>
+          </Card>)}
 
           
           {ride.status === 'COMPLETED' && (

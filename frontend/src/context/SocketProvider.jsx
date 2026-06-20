@@ -11,7 +11,7 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const { user, token, role } = useSelector((state) => state.auth);
-  console.log("user in socketPRovider is",user);
+ 
   const navigate=useNavigate();
 
   const [socket, setSocket] = useState(null);

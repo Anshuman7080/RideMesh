@@ -236,15 +236,22 @@ const login = async (req, res) => {
         const accessToken = jwt.sign(
             { id: user._id, role: user.role,name:user?.name },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '60m' }
+            { expiresIn: '15m' }
         );
 
-    
-            res.cookie("token", accessToken, {
-            httpOnly: true,              
-             
-            maxAge: 60 * 60 * 1000 
-        });
+        const refreshToken=jwt.sign(
+            {id:user._id,role:user.role,name:user?.name},
+            process.env.JWT_SECRET_KEY_FOR_REFRESHTOKEN,
+            {expiresIn:"7d"}
+        )
+ 
+
+        res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,  
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", 
+    secure: process.env.NODE_ENV === "production",       
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
 
         return res.status(200).json({
@@ -267,6 +274,37 @@ const login = async (req, res) => {
         });
     }
 };
+
+const refreshToken=async(req,res)=>{
+    try{
+       const token=req.cookies.refreshToken;
+
+       if(!token){
+        return res.status(401).json({
+            message:"No refresh Token"
+        })
+       }
+
+    const decoded=jwt.verify(token,process.env.JWT_SECRET_KEY_FOR_REFRESHTOKEN);
+
+   const newAccessToken = jwt.sign(
+      { id: decoded.id, role: decoded.role ,name:decoded.name},
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "15m" }
+    );
+
+    return res.json({accessToken:newAccessToken});
+
+    }
+    catch(error){
+        console.log("error in generating refresh token",error);
+
+        return res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
 
 
 const updateUserRole = async (req, res) => {
@@ -346,5 +384,6 @@ module.exports = {
     resendOtp,
     login,
     updateUserRole,
-    updateIsActive
+    updateIsActive,
+    refreshToken
 }

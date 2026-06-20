@@ -6,7 +6,7 @@ const applyDriver=async(req,res)=>{
     try{
              const userId=req.headers['x-user-id']
              const name=req.headers['x-user-name']
-
+              
 
              if(!userId || !name){
                 return res.status(404).json({
@@ -14,7 +14,7 @@ const applyDriver=async(req,res)=>{
                     message:"UserId and Name are required"
                 })
              }
-             
+
 
              const {phone,vehicleType,vehicleNumber,drivingLicense}=req.body;
 

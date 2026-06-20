@@ -31,10 +31,19 @@ const authMiddleware=(req,res,next)=>{
 
     }catch(error){
         console.log("Error in verifying jwt at gateway",error);
+       if (error.name === "TokenExpiredError") {
         return res.status(401).json({
-            success:false,
-            message:"Invalid Token"
-        })
+            success: false,
+            code: "TOKEN_EXPIRED",
+            message: "Access token expired"
+        });
+    }
+
+    return res.status(401).json({
+        success: false,
+        code: "TOKEN_INVALID",
+        message: "Invalid token"
+    });
     }
 }
 

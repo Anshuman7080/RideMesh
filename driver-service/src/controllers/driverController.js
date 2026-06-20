@@ -14,6 +14,7 @@ const applyDriver=async(req,res)=>{
                     message:"UserId and Name are required"
                 })
              }
+             
 
              const {phone,vehicleType,vehicleNumber,drivingLicense}=req.body;
 
@@ -225,6 +226,7 @@ const approveDriver = async (req, res) => {
     }
 
     driver.isApproved = true;
+    driver.isAvailable=true;
 
     await driver.save();
 

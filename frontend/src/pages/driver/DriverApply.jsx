@@ -13,6 +13,7 @@ const DriverApply = () => {
   const dispatch = useDispatch();
 
   const { loading, error, applied } = useSelector((state) => state.driver);
+  const {token}=useSelector((state)=>state.auth);
 
   const [formData, setFormData] = useState({
     phone: '',
@@ -84,6 +85,7 @@ const DriverApply = () => {
         vehicleType: formData.vehicleType,
         vehicleNumber: formData.vehicleNumber.trim().toUpperCase(),
         drivingLicense: formData.drivingLicense.trim().toUpperCase(),
+        token
       })
     );
   };

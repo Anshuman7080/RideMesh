@@ -42,7 +42,7 @@ export const createRide =({ pickup, dropoff, distanceKm,token}) =>
         }
       );
 
-      console.log("response of creating ride",response);
+      // console.log("response of creating ride",response);
       const ride = response?.data?.ride;
       
 
@@ -79,7 +79,7 @@ export const getDriverRequests = (token) => {
         }
       );
 
-      console.log("response of getDriverRequests....", response.data.requests);
+      // console.log("response of getDriverRequests....", response.data.requests);
 
      
       const formattedRequests = (response.data.requests || []).map((req) => ({
@@ -121,7 +121,7 @@ export const acceptRide =(rideId,token,navigate) => async (dispatch) => {
         "Content-Type": "application/json",}
       );
        
-      console.log("response of accept ride",response);
+      // console.log("response of accept ride",response);
 
       dispatch(setCurrentRide(response.data.ride));
 
@@ -164,7 +164,7 @@ export const cancelRide =({ rideId, reason ,token,navigate}) =>
         "Content-Type": "application/json"
     });
 
-    console.log("Response of cancelling ride",response);
+    // console.log("Response of cancelling ride",response);
 
       dispatch(setBookingStatus("cancelled"));
 
@@ -220,7 +220,7 @@ export const rejectRide =({rideId,token}) => async (dispatch) => {
       
       });
 
-      console.log("response of rejecting ride.....",response);
+      // console.log("response of rejecting ride.....",response);
 
       const current =JSON.parse(localStorage.getItem("driverRequests")) || [];
 
@@ -251,7 +251,7 @@ export const driverArrived =({rideId,token}) => async (dispatch) => {
                  }
              );
 
-      console.log("reponse of driverArrived",response);
+      // console.log("reponse of driverArrived",response);
 
       dispatch(setCurrentRide(response.data.ride));
 
@@ -276,7 +276,7 @@ export const startRide =({rideId,token}) => async (dispatch) => {
         }
       );
 
-      console.log("response of startRide",response);
+      // console.log("response of startRide",response);
 
       dispatch(setCurrentRide(response.data.ride));
     } catch (error) {
@@ -301,7 +301,7 @@ export const completeRide = ({rideId,token,navigate}) => async (dispatch) => {
       } 
       );
 
-       console.log("response of completeRide",response);
+      //  console.log("response of completeRide",response);
 
       const ride = response.data.ride;
 
@@ -332,7 +332,7 @@ export const driverCancelRide = ({ rideId, reason,token,navigate }) =>
           "Content-Type": "application/json"
       });
      
-      console.log("res of driver cancelling ride",res);
+      // console.log("res of driver cancelling ride",res);
 
       
       navigate('/driver/home')
@@ -381,7 +381,7 @@ export const getRideDetails=({rideId,token})=>async(dispatch)=>{
         "Content-Type": "application/json",
       })
 
-      console.log("response of getRideDetails....",response);
+      // console.log("response of getRideDetails....",response);
 
       dispatch(setCurrentRide(response.data.ride));
 
@@ -413,7 +413,7 @@ export const getActiveRide=({token})=>async(dispatch)=>{
         "Content-Type": "application/json",
       })
 
-      console.log("response of getActive RIder",response);
+      // console.log("response of getActive RIder",response);
 
       dispatch(setCurrentRide(response.data.ride))
 
@@ -437,7 +437,7 @@ export const getRideHistory = ({ token }) => async (dispatch) => {
       }
     );
 
-    console.log("response of ride history for rider", response);
+    // console.log("response of ride history for rider", response);
 
     dispatch(setRideHistory(response.data?.rideList));
   } catch (error) {

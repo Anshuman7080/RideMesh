@@ -30,7 +30,7 @@ export const sentOtp = ({ name, email, password }) =>
         name,email,password
       })
 
-       console.log("SENDOTP API RESPONSE............", res)
+      //  console.log("SENDOTP API RESPONSE............", res)
 
       dispatch(setOtpSent(true));
       dispatch(setOtpSentEmail(email));
@@ -63,7 +63,7 @@ export const verifyOtp =({ email, otpCode }) =>
         }
       );
 
-      console.log("Response of verify opt",response);
+      // console.log("Response of verify opt",response);
 
     const userObj=response?.data?.user
 
@@ -107,7 +107,7 @@ export const resendOtp = ({ email }) =>
         email,
       });
 
-      console.log("response of resending otp",res);
+      // console.log("response of resending otp",res);
 
 
     } catch (error) {
@@ -137,7 +137,7 @@ export const login =({ email, password }) =>
         }
       );
 
-      console.log("response of user login",response);
+      // console.log("response of user login",response);
 
       const data = response.data;
 

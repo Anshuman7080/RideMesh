@@ -169,29 +169,8 @@ const RiderProfile = () => {
               <RefreshCw size={14} className="animate-spin text-accent-blue" />
               <span>Verifying application records...</span>
             </div>
-          ) : driverProfile ? (
-            driverProfile.isApproved ? (
-              // Approved driver state
-              <div className="p-4 rounded-xl border border-green-100 bg-green-50/40 flex items-center justify-between gap-4">
-                <div className="space-y-1.5 text-left">
-                  <div className="flex items-center gap-1.5 text-xs font-extrabold text-accent-green">
-                    <CheckCircle2 size={16} />
-                    <span>Approved partner Profile</span>
-                  </div>
-                  <p className="text-[10px] text-gray-500 leading-normal">
-                    Your driver account is active. Switch to driver mode to access the dashboard and accept trips.
-                  </p>
-                </div>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSwitchToDriver}
-                  className="bg-accent-green hover:bg-green-700 font-bold shrink-0 py-2.5 flex items-center gap-1"
-                >
-                  Go Driver <ArrowRight size={13} />
-                </Button>
-              </div>
-            ) : (
+          ) : driverProfile ? 
+           (
               // Pending driver state
               <div className="p-4 rounded-xl border border-yellow-100 bg-yellow-50/40 flex items-start gap-3.5">
                 <ShieldAlert size={18} className="text-yellow-700 shrink-0 mt-0.5" />
@@ -203,7 +182,7 @@ const RiderProfile = () => {
                 </div>
               </div>
             )
-          ) : (
+           : (
             // No driver profile yet
             <div className="p-4 rounded-xl border border-gray-150 flex items-center justify-between gap-4">
               <div className="space-y-1 text-left">

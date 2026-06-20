@@ -21,7 +21,7 @@ export const getRiderProfile = ({token}) => async (dispatch) => {
       "Content-Type": "application/json",
      })   
 
-     console.log("response of getRiderProfile is",response);
+    //  console.log("response of getRiderProfile is",response);
 
      dispatch(setProfile(response?.data?.details))
 
@@ -58,7 +58,7 @@ export const updateRiderDetails =({name,phone,token}) =>async (dispatch) => {
        "Content-Type": "application/json",
       });
 
-     console.log("response of updating rider profile",response);
+    //  console.log("response of updating rider profile",response);
 
      dispatch(setProfile(response?.data?.details))
 
@@ -89,7 +89,7 @@ export const deactivateRider = ({token}) => async (dispatch) => {
       "Content-Type": "application/json",
     });
 
-    console.log("response of deleting rider account",response);
+    // console.log("response of deleting rider account",response);
    
     dispatch(setProfile(null));
     dispatch(logoutUser());
@@ -119,7 +119,7 @@ export const  getRiderDetailForRide=({riderId,token})=>
         
         })
 
-        console.log("response for getRiderDetailForRide",response);
+        // console.log("response for getRiderDetailForRide",response);
 
         return response?.data?.riderDetail;
 

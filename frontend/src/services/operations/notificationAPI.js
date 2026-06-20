@@ -24,7 +24,7 @@ const {GET_MY_NOTIFICATIONS,MARK_AS_READ,MARK_ALL_AS_READ}=notificationEndPoints
         }
   
       );
-      console.log("response of gat my notifications",response);
+      // console.log("response of gat my notifications",response);
 
       dispatch(
         setNotifications(
@@ -55,7 +55,7 @@ const {GET_MY_NOTIFICATIONS,MARK_AS_READ,MARK_ALL_AS_READ}=notificationEndPoints
       }
        
       );
-      console.log("response of markRead",response);
+      // console.log("response of markRead",response);
 
       dispatch(
         markNotificationRead(notificationId)
@@ -83,7 +83,7 @@ const {GET_MY_NOTIFICATIONS,MARK_AS_READ,MARK_ALL_AS_READ}=notificationEndPoints
        
       );
 
-      console.log("response of markAllRead",response);
+      // console.log("response of markAllRead",response);
 
       dispatch(markAllNotificationsRead());
     } catch (error) {

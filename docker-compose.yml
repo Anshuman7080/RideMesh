@@ -35,7 +35,7 @@ services:
       - "5001:5001"
     environment:
       - PORT=5001
-      - MONGO_URI=${MONGO_URI_AUTH}
+      - MONGO_URI_AUTH=${MONGO_URI_AUTH}
       - RABBITMQ_URL=amqp://rabbitmq:5672
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -65,7 +65,7 @@ services:
       - "5002:5002"
     environment:
       - PORT=5002
-      - MONGO_URI=${MONGO_URI_USER}
+      - MONGO_URI_USER=${MONGO_URI_USER}
       - RABBITMQ_URL=amqp://rabbitmq:5672
       - AUTH_SERVICE_URL=http://auth-service:5001/api/v1/auth
     networks:
@@ -86,7 +86,7 @@ services:
       - "5003:5003"
     environment:
       - PORT=5003
-      - MONGO_URI=${MONGO_URI_DRIVER}
+      - MONGO_URI_DRIVER=${MONGO_URI_DRIVER}
       - RABBITMQ_URL=amqp://rabbitmq:5672
       - AUTH_SERVICE_URL=http://auth-service:5001/api/v1/auth
     networks:
@@ -107,7 +107,7 @@ services:
       - "5004:5004"
     environment:
       - PORT=5004
-      - MONGO_URI=${MONGO_URI_RIDE}
+      - MONGO_URI_RIDE=${MONGO_URI_RIDE}
       - RABBITMQ_URL=amqp://rabbitmq:5672
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -134,7 +134,7 @@ services:
       - "5005:5005"
     environment:
       - PORT=5005
-      - MONGO_URI=${MONGO_URI_NOTIF}
+      - MONGO_URI_NOTIF=${MONGO_URI_NOTIF}
       - RABBITMQ_URL=amqp://rabbitmq:5672
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -167,7 +167,7 @@ services:
       - USER_SERVICE_URL=http://user-service:5002/api/v1/riders
       - DRIVER_SERVICE_URL=http://driver-service:5003/api/v1/drivers
       - RIDE_SERVICE_URL=http://ride-service:5004/api/v1/rides
-      - NOTIFICATION_SERVICE_URL=http://notification-service:5005/api/v1/notifications
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
       - PAYMENT_SERVICE_URL=http://localhost:5006/api/v1/payment
     networks:
       - ridemesh-network
@@ -189,6 +189,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:5000
+      - VITE_SOCKET_URL=http://localhost:5005
     depends_on:
       - api-gateway
     networks:

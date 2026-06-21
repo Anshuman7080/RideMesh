@@ -8,8 +8,10 @@ const driverProxy=require("./routes/driverProxy")
 const limiter = require("./middleware/rateLimiter");
 const authMiddleware = require("./middleware/authMiddleware");
 const rideProxy=require("./routes/rideProxy");
-const notificationProxy=require("./routes/notificationProxy");
+const {notificationRestProxy,notificationSocketProxy}=require("./routes/notificationProxy");
 const paymentProxy=require("./routes/paymentProxy")
+const http=require("http");
+
 dotenv.config();
 
 const app = express();
@@ -49,10 +51,21 @@ app.use("/api/v1/drivers",authMiddleware,driverProxy);
 
 app.use("/api/v1/rides",authMiddleware,rideProxy);
 
-app.use("/api/v1/notifications",authMiddleware,notificationProxy);
+app.use("/api/v1/notifications",authMiddleware,notificationRestProxy);
+app.use("/socket.io", notificationSocketProxy);
 
 app.use("/api/v1/payment",authMiddleware,paymentProxy);
 
+const server=http.createServer(app);
+
+// server.on("upgrade",(req,socket,head)=>{
+//   if(req.url.startsWith("/socket.io")){
+//     console.log("[Gateway] Forwarding raw WebSocket upgrade handshake to notification-service...");
+//     notificationProxy.upgrade(req, socket, head);
+//   }
+// })
+
+server.on("upgrade", notificationSocketProxy.upgrade);
 
 app.get("/", (req, res) => {
   return res.json({
@@ -61,7 +74,11 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log(`Gateway running on ${PORT}`);
+// });
+
+server.listen(PORT, () => {
   console.log(`Gateway running on ${PORT}`);
 });
 

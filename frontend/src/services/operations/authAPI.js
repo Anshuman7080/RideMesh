@@ -199,6 +199,8 @@ export const login =({ email, password }) =>
       actionLabel:'Login Done',
      })
     } catch (error) {
+      console.log("Error in loggin is",error);
+      console.log("Error in loggin is",error.response.data)
       dispatch(
         setError(
           error.response?.data?.message ||

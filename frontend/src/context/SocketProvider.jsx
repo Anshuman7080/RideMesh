@@ -24,12 +24,17 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    const socketUrl =
-      import.meta.env.VITE_SOCKET_URL || 'http://localhost:5005';
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
     const newSocket = io(socketUrl, {
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'], 
       auth: { token },
+  
+      reconnection: true,
+      reconnectionAttempts: Infinity, 
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000
     });
 
     setSocket(newSocket);
@@ -44,8 +49,12 @@ export const SocketProvider = ({ children }) => {
       });
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('[Socket] Disconnected');
+    newSocket.on('reconnect_attempt', () => {
+      console.log('[Socket] Inactivity drop caught. Attempting reconnection loop...');
+    });
+
+    newSocket.on('disconnect', (reason) => {
+      console.log('[Socket] Disconnected',reason);
     });
 
     return () => {

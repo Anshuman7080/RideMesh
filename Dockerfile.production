@@ -1,0 +1,38 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache rabbitmq-server
+
+
+RUN npm install -g pm2
+
+WORKDIR /app
+ENV PM2_HOME=/tmp/.pm2
+
+
+COPY api-gateway/package*.json ./api-gateway/
+COPY auth-service/package*.json ./auth-service/
+COPY user-service/package*.json ./user-service/
+COPY driver-service/package*.json ./driver-service/
+COPY ride-service/package*.json ./ride-service/
+COPY notification-service/package*.json ./notification-service/
+
+
+RUN cd api-gateway && npm ci --only=production
+RUN cd auth-service && npm ci --only=production
+RUN cd user-service && npm ci --only=production
+RUN cd driver-service && npm ci --only=production
+RUN cd ride-service && npm ci --only=production
+RUN cd notification-service && npm ci --only=production
+
+
+COPY ecosystem.config.js ./
+COPY . .
+
+RUN chmod -R 755 /app
+
+
+ENV RABBITMQ_SERVER_START_ARGS="-rabbit vm_memory_high_watermark 0.2"
+
+EXPOSE 5000
+
+CMD ["pm2-runtime", "ecosystem.config.js", "--format"]

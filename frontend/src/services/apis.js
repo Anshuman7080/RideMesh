@@ -1,4 +1,4 @@
-const BASEURL=" http://localhost:5000";
+const BASEURL=import.meta.env.VITE_API_URL || " http://localhost:5000";
 
 export const authEndPoints={
    SEND_OTP :BASEURL + "/api/v1/auth/send-otp",

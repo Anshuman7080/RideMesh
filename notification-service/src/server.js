@@ -25,7 +25,7 @@ const server =http.createServer(app);
 
 initializeSocket(server);
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5005;
 
 
 // Middlewares

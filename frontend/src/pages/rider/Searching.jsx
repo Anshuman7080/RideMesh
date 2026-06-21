@@ -31,6 +31,12 @@ const Searching = () => {
         );
         console.log("Auto-cancel triggered:", res);
         dispatch(resetBookingState());
+        showToastWithRedirect({
+          title:"Ride Cancelled",
+          message:`Drivers are not available `,
+          type:'Success',
+          actionLabel:'Ride Cancelled',
+        })
         navigate('/rider/home');
       }
     }, 1 * 60 * 1000);

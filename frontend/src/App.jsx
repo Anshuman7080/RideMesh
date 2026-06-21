@@ -301,9 +301,9 @@ function App() {
         <Route
           path="/rider/payment/success"
           element={
-            // <ProtectedRoute allowedRoles={['rider']}>
+            <ProtectedRoute allowedRoles={['rider']}>
               <PaymentSuccess />
-            // </ProtectedRoute>
+             </ProtectedRoute>
           }
         />
       

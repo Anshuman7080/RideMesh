@@ -21,8 +21,20 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 console.log("coming in refresh token interceptor 1");
+
+ const authRoutes = [
+      "/api/v1/auth/login",
+      "/api/v1/auth/send-otp",
+      "/api/v1/auth/verify-otp",
+      "/api/v1/auth/resend-otp",
+      "/api/v1/auth/refresh-token",
+    ];
     
-    if (error.response.status === 401 && !originalRequest._retry) {
+     const isAuthRoute = authRoutes.some((route) =>
+      originalRequest.url.includes(route)
+    );
+
+    if (error.response.status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
       console.log("coming in refresh token interceptor 2");
       try {
@@ -43,7 +55,7 @@ console.log("coming in refresh token interceptor 1");
       } catch (refreshError) {
 
          store.dispatch(logoutUser()); 
-        console.log("error in refresh token");
+        console.log("error in refresh token",refreshError);
         return Promise.reject(refreshError);
       }
     }

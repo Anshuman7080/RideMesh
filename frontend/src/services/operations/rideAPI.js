@@ -316,7 +316,7 @@ export const completeRide = ({rideId,token,navigate}) => async (dispatch) => {
       dispatch(setCurrentRide(ride));
 
       
-      console.log("ride id in complted",ride?._id);
+    
       navigate(`/driver/completed/${ride?._id}`);
     } catch (error) {
       console.log("Error in completing ride",error.response?.data);

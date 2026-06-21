@@ -875,7 +875,8 @@ const completeRide = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Ride completed successfully",
-            finalFare: ride.finalFare
+            finalFare: ride.finalFare,
+            ride:ride
         });
 
     } catch (error) {
@@ -1407,7 +1408,7 @@ try{
 
 const rideList = await Ride.find({
   riderId: userId,
-  status: { $in: ['COMPLETED', 'CANCELLED'] }
+  status: { $in: ['COMPLETED', 'CANCELLED','PAYMENT_COMPLETED'] }
 });
 
 

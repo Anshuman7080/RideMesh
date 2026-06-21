@@ -1,4 +1,5 @@
 
+import showToastWithRedirect from "../../components/Toast";
 import {
   setLoading,
   setError,
@@ -34,6 +35,12 @@ export const sentOtp = ({ name, email, password }) =>
 
       dispatch(setOtpSent(true));
       dispatch(setOtpSentEmail(email));
+      showToastWithRedirect({
+      title:"Otp Sent!",
+      message:`Otp sent successfully!`,
+      type:'Success',
+      actionLabel:'OTP Sent',
+     })
     } catch (error) {
 
       console.log("error is ",error);
@@ -41,6 +48,12 @@ export const sentOtp = ({ name, email, password }) =>
         setError(error.response?.data?.message || "Failed to send OTP")
       );
       dispatch(setOtpSent(false));
+      showToastWithRedirect({
+      title:"Otp Not Sent!",
+      message:`Otp not sent!`,
+      type:'Success',
+      actionLabel:'OTP Not  Sent',
+     })
     } finally {
       dispatch(setLoading(false));
     }
@@ -82,6 +95,12 @@ export const verifyOtp =({ email, otpCode }) =>
         "role",
         userObj.role || "rider"
       );
+      showToastWithRedirect({
+      title:"Otp Verified!",
+      message:`Otp Verified successfully!`,
+      type:'Success',
+      actionLabel:'OTP Verified',
+     })
     } catch (error) {
       console.log("error in verifying opt",error);
       dispatch(
@@ -109,7 +128,13 @@ export const resendOtp = ({ email }) =>
 
       // console.log("response of resending otp",res);
 
-
+      showToastWithRedirect({
+      title:"Otp Sent!",
+      message:`Otp sent successfully!`,
+      type:'Success',
+      actionLabel:'OTP Sent',
+     })
+       
     } catch (error) {
 
       console.log("Error in ressending otp",error);
@@ -166,6 +191,13 @@ export const login =({ email, password }) =>
         "role",
         userObj.role || "rider"
       );
+
+      showToastWithRedirect({
+      title:"Login Done!",
+      message:`Login Successfully!`,
+      type:'Success',
+      actionLabel:'Login Done',
+     })
     } catch (error) {
       dispatch(
         setError(

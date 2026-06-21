@@ -16,7 +16,6 @@ import RideOptions from "./pages/rider/RideOptions";
 import Searching from './pages/rider/Searching';
 import LiveTracking from './pages/rider/LiveTracking';
 import Completed from './pages/rider/Completed';
-import PaymentFailure from './pages/rider/PaymentFailure';
 import PaymentSuccess from './pages/rider/PaymentSuccess';
 import RideHistory from './pages/rider/RideHistory';
 import RideDetail from './pages/rider/RideDetail';
@@ -304,14 +303,6 @@ function App() {
           element={
             // <ProtectedRoute allowedRoles={['rider']}>
               <PaymentSuccess />
-            // </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rider/payment/failure"
-          element={
-            // <ProtectedRoute allowedRoles={['rider']}>
-              <PaymentFailure />
             // </ProtectedRoute>
           }
         />

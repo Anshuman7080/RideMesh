@@ -156,4 +156,4 @@ NOTIFICATION_SERVICE_URL=http://notification-service:5005
 
 ## 👨‍💻 Author
 
-**Raj** — [github.com/Anshuman7080](https://github.com/Anshuman7080)
+**Anshuman Dubey** — [github.com/Anshuman7080](https://github.com/Anshuman7080)

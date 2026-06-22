@@ -2,7 +2,7 @@ const amqp = require("amqplib");
 
 let channel, connection;
 
-const connectRabbitMQ = async (retries = 10, delay = 3000) => {
+const connectRabbitMQ = async (retries = 20, delay = 3000) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             const rabbitmqUrl = process.env.RABBITMQ_URL || "amqp://localhost:5672";

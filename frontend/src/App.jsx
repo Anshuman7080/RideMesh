@@ -175,6 +175,7 @@ const handleTabChange=(id,path)=>{
 function App() {
 
    const { user } = useSelector((state) => state.auth);
+   const navigate=useNavigate();
 
   return (
    <BrowserRouter>
@@ -227,8 +228,8 @@ function App() {
             <ProtectedRoute allowedRoles={['rider']}>
               <RiderLayout activeTabId="home">
                <RiderHome
-                 onSearchClick={() => window.location.href = '/rider/set-location'}
-                  onApplyDriverClick={() => window.location.href = '/driver/apply'}
+                 onSearchClick={() =>navigate('/rider/set-location') }
+                  onApplyDriverClick={()=>navigate('/driver/apply')}
                />
                </RiderLayout>
              </ProtectedRoute>

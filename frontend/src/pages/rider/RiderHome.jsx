@@ -122,7 +122,7 @@ const renderPanelContent = () => (
           {recentLocations.map((loc) => (
             <div
               key={loc.id}
-              onClick={onSearchClick}
+              onClick={() =>navigate('/rider/set-location') }
               className="flex items-start gap-3.5 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <div className="p-2 rounded-lg bg-gray-100 text-primary-darkgray">

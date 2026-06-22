@@ -12,6 +12,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -33,12 +34,10 @@ const ChangeMapView=({center})=>{
 }
 
 
-const RiderHome = ({
-  onSearchClick = () => {},
-  onApplyDriverClick = () => {},
-}) => {
+const RiderHome = () => {
   
     const {user}=useSelector((state)=>state.auth)
+    const navigate=useNavigate();
 
     const defaultPosition=[25.3176,82.9739];
     const [position,setPosition]=useState(defaultPosition);
@@ -81,7 +80,8 @@ const renderPanelContent = () => (
 
       
       <div 
-        onClick={onSearchClick}
+        onClick={() =>navigate('/rider/set-location') }
+              
         className="flex items-center gap-3 px-4 py-3.5 bg-primary-gray hover:bg-gray-200/80 rounded-xl cursor-pointer transition-all border border-gray-100 hover:border-gray-300"
       >
         <Search className="text-accent-blue" size={18} />
@@ -106,7 +106,7 @@ const renderPanelContent = () => (
             variant="ghost" 
             size="sm" 
             className="text-white hover:bg-white/10 hover:text-white p-0 text-xs font-semibold flex items-center gap-1.5"
-            onClick={onApplyDriverClick}
+            onClick={() => navigate('/driver/apply')}
           >
            <div className="flex items-center gap-1"> Apply Now <ArrowRight size={13} /></div>
           </Button>

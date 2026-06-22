@@ -3,7 +3,8 @@ import axios from "axios";
 import { logoutUser } from "./operations/authAPI";
 import store from "../store/index"
 
-const BASEURL = "http://localhost:5000";
+const BASEURL=import.meta.env.VITE_API_URL || " http://localhost:5000";
+
 
 export const axiosInstance = axios.create({
   withCredentials: true,

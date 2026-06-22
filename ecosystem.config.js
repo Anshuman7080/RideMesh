@@ -2,16 +2,15 @@ module.exports = {
   apps: [
     {
       name: 'rabbitmq-internal',
-      script: '/usr/sbin/rabbitmq-server',
+      script: 'rabbitmq-server', 
       exec_mode: 'fork',
-      interpreter: 'none', 
+      interpreter: 'none',    
       autorestart: true,
-      max_memory_restart: '250M', 
+      max_memory_restart: '250M',
       env: {
         RABBITMQ_MNESIA_BASE: '/tmp/rabbitmq/mnesia',
         RABBITMQ_LOG_BASE: '/tmp/rabbitmq/log',
-        RABBITMQ_PID_FILE: '/tmp/rabbitmq/rabbit.pid',
-        RABBITMQ_ENV_CONFIG_FILE: '/tmp/rabbitmq/rabbitmq-env.conf'
+        RABBITMQ_PID_FILE: '/tmp/rabbitmq/rabbit.pid'
       }
     },
     {

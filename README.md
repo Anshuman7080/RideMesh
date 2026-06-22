@@ -43,10 +43,10 @@ RideMesh transitions away from a monolithic pattern into a highly scalable, deco
 - **🔐 JWT Auth with RBAC** — Access and refresh token pair with role-based route protection (Rider / Driver)
 - **📍 Real-time Driver Tracking** — Live GPS coordinates streamed over Socket.io, rendered on an interactive map
 - **⚡ Redis OTP Flow** — OTP state stored in Redis with TTL expiry; no DB writes until verified
-- **🐇 Async Messaging via RabbitMQ** — Services communicate through topic exchanges; no direct service-to-service HTTP calls
+- **🐇 Async Messaging via RabbitMQ** — Services communicate through topic exchanges; 
 - **🗺️ Geospatial Ride Matching** — Ride service queries nearest available drivers using location data
 - **💰 Dynamic Fare Calculation** — Distance-based fare engine with real-time pricing on ride request
-- **📧 Email Notifications** — Ride confirmation, OTP, and status updates via SMTP triggered by RabbitMQ events
+- **📧 Email & Notifications** — Ride confirmation, OTP, and status updates via SMTP triggered by RabbitMQ events
 - **🐳 Fully Containerized** — Docker Compose orchestration with an isolated `ridemesh-network` bridge
 
 ---

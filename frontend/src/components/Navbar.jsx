@@ -181,8 +181,8 @@ const Navbar = ({
       {/* Mobile Side Drawer Menu */}
       <div
         className={`
-          fixed top-16 bottom-0 right-0 w-[280px] bg-primary text-white border-l border-primary-light shadow-2xl z-45 md:hidden 
-          transition-transform duration-300 transform flex flex-col justify-between
+          fixed top-16 bottom-0 right-0 w-[280px] bg-primary text-white border-l border-primary-light shadow-2xl z-50 md:hidden 
+         h-screen transition-transform duration-300 transform flex flex-col justify-between
           ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}
         `}
       >

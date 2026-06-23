@@ -1,55 +1,73 @@
-RideMesh 🚗💨
+# RideMesh 🚗💨
 
+> **A production-grade, event-driven ride-sharing platform built on a Node.js microservices architecture — featuring real-time driver tracking, asynchronous inter-service messaging via RabbitMQ, and Redis-backed state management.**
 
-A production-grade, event-driven ride-sharing platform built on a Node.js microservices architecture — featuring real-time driver tracking, asynchronous inter-service messaging via RabbitMQ, and Redis-backed state management.
+🌐 **Live Demo:** [https://ridemesh-frontend.onrender.com](https://ridemesh-frontend.onrender.com)
 
+---
 
-
-🌐 Live Demo: https://ridemesh-frontend.onrender.com
-
-
-🚀 Try It Live
+## 🚀 Try It Live
 
 No signup needed — use the demo accounts below:
 
-RoleEmailPassword🧍 Riderrider@gmail.com123456789🚗 Driverdriver@gmail.com12345678
+| Role   | Email              | Password    |
+|--------|--------------------|-------------|
+| 🧍 Rider  | rider@gmail.com    | 123456789   |
+| 🚗 Driver | driver@gmail.com   | 12345678    |
 
+> **Tip:** Open two browser tabs — one as Rider, one as Driver — to experience the full ride flow end to end.
 
-Tip: Open two browser tabs — one as Rider, one as Driver — to experience the full ride flow end to end.
+---
 
+## 🏗️ System Architecture
 
+RideMesh transitions away from a monolithic pattern into a highly scalable, decoupled network of **6 independent backend services** communicating asynchronously through **RabbitMQ** and synchronizing live state via **Redis Cloud**.
 
+### Services
 
-🏗️ System Architecture
+| Service | Port | Responsibility |
+|---|---|---|
+| `api-gateway` | 5000 | Single entry point — route proxying, JWT validation, middleware |
+| `auth-service` | 5001 | Registration, login, Redis-backed OTP flow, JWT issuance |
+| `user-service` | 5002 | Rider profiles, account lifecycle, internal state tracking |
+| `driver-service` | 5003 | Driver availability, real-time GPS state, document approvals |
+| `ride-service` | 5004 | Ride lifecycle — creation, geospatial matching, fare engine, status updates |
+| `notification-service` | 5005 | Event-driven SMTP email notifications via RabbitMQ consumers |
+| `frontend` | 5173 | React/Vite SPA — Rider and Driver interfaces |
+| `rabbitmq` | 5672 / 15672 | AMQP message broker — pub/sub topic exchange across all services |
 
-RideMesh transitions away from a monolithic pattern into a highly scalable, decoupled network of 6 independent backend services communicating asynchronously through RabbitMQ and synchronizing live state via Redis Cloud.
+---
 
-Services
+## ✨ Key Features
 
-ServicePortResponsibilityapi-gateway5000Single entry point — route proxying, JWT validation, middlewareauth-service5001Registration, login, Redis-backed OTP flow, JWT issuanceuser-service5002Rider profiles, account lifecycle, internal state trackingdriver-service5003Driver availability, real-time GPS state, document approvalsride-service5004Ride lifecycle — creation, geospatial matching, fare engine, status updatesnotification-service5005Event-driven SMTP email notifications via RabbitMQ consumersfrontend5173React/Vite SPA — Rider and Driver interfacesrabbitmq5672 / 15672AMQP message broker — pub/sub topic exchange across all services
+- **🔐 JWT Auth with RBAC** — Access and refresh token pair with role-based route protection (Rider / Driver)
+- **📍 Real-time Driver Tracking** — Live GPS coordinates streamed over Socket.io, rendered on an interactive map
+- **⚡ Redis OTP Flow** — OTP state stored in Redis with TTL expiry; no DB writes until verified
+- **🐇 Async Messaging via RabbitMQ** — Services communicate through topic exchanges; 
+- **🗺️ Geospatial Ride Matching** — Ride service queries nearest available drivers using location data
+- **💰 Dynamic Fare Calculation** — Distance-based fare engine with real-time pricing on ride request
+- **📧 Email & Notifications** — Ride confirmation, OTP, and status updates via SMTP triggered by RabbitMQ events
+- **🐳 Fully Containerized** — Docker Compose orchestration with an isolated `ridemesh-network` bridge
 
+---
 
-✨ Key Features
+## 🛠️ Tech Stack
 
+| Layer | Technology |
+|---|---|
+| Frontend | React.js, Vite, Tailwind CSS, Redux Toolkit |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas (isolated cluster per service) |
+| Cache / Session | Redis Cloud |
+| Message Broker | RabbitMQ (AMQP) |
+| Real-time | Socket.io |
+| Containerization | Docker, Docker Compose |
 
-🔐 JWT Auth with RBAC — Access and refresh token pair with role-based route protection (Rider / Driver)
-📍 Real-time Driver Tracking — Live GPS coordinates streamed over Socket.io, rendered on an interactive map
-⚡ Redis OTP Flow — OTP state stored in Redis with TTL expiry; no DB writes until verified
-🐇 Async Messaging via RabbitMQ — Services communicate through topic exchanges; no direct service-to-service HTTP calls
-🗺️ Geospatial Ride Matching — Ride service queries nearest available drivers using location data
-💰 Dynamic Fare Calculation — Distance-based fare engine with real-time pricing on ride request
-📧 Email Notifications — Ride confirmation, OTP, and status updates via SMTP triggered by RabbitMQ events
-🐳 Fully Containerized — Docker Compose orchestration with an isolated ridemesh-network bridge
+---
 
+## 🗂️ Project Structure
 
-
-🛠️ Tech Stack
-
-LayerTechnologyFrontendReact.js, Vite, Tailwind CSS, Redux ToolkitBackendNode.js, Express.jsDatabaseMongoDB Atlas (isolated cluster per service)Cache / SessionRedis CloudMessage BrokerRabbitMQ (AMQP)Real-timeSocket.ioContainerizationDocker, Docker Compose
-
-
-🗂️ Project Structure
-
+```
 ridemesh/
 ├── api-gateway/
 ├── auth-service/
@@ -60,22 +78,22 @@ ridemesh/
 ├── frontend/
 ├── docker-compose.yml
 └── .env                  # Root-level secrets (excluded from Git)
+```
 
+---
 
-⚙️ Local Setup
+## ⚙️ Local Setup
 
-Prerequisites
+### Prerequisites
+- Docker & Docker Compose
+- MongoDB Atlas cluster URIs (one per service)
+- Redis Cloud instance
+- Gmail App Password for SMTP
 
+### Steps
 
-Docker & Docker Compose
-MongoDB Atlas cluster URIs (one per service)
-Redis Cloud instance
-Gmail App Password for SMTP
-
-
-Steps
-
-bash# 1. Clone the repository
+```bash
+# 1. Clone the repository
 git clone https://github.com/Anshuman7080/ridemesh.git
 cd ridemesh
 
@@ -85,12 +103,14 @@ cp .env.example .env
 
 # 3. Start all services
 docker-compose up --build
+```
 
-Environment Variables
+### Environment Variables
 
-Create a .env file at the project root:
+Create a `.env` file at the project root:
 
-env# --- GLOBAL SECRETS ---
+```env
+# --- GLOBAL SECRETS ---
 JWT_SECRET_KEY=your_jwt_secret_key
 JWT_SECRET_KEY_FOR_REFRESHTOKEN=your_refresh_token_secret_key
 
@@ -121,18 +141,19 @@ USER_SERVICE_URL=http://user-service:5002
 DRIVER_SERVICE_URL=http://driver-service:5003
 RIDE_SERVICE_URL=http://ride-service:5004
 NOTIFICATION_SERVICE_URL=http://notification-service:5005
+```
 
+---
 
-🔒 Security Notes
+## 🔒 Security Notes
 
+- All `.env` files are excluded from Git via `.gitignore`
+- JWT refresh tokens are stored in HttpOnly cookies
+- OTP states are stored in Redis with TTL — never persisted to MongoDB until verification succeeds
+- Each service connects to its own isolated MongoDB Atlas cluster
 
-All .env files are excluded from Git via .gitignore
-JWT refresh tokens are stored in HttpOnly cookies
-OTP states are stored in Redis with TTL — never persisted to MongoDB until verification succeeds
-Each service connects to its own isolated MongoDB Atlas cluster
+---
 
+## 👨‍💻 Author
 
-
-👨‍💻 Author
-
-Anshuman Dubey — github.com/Anshuman7080
+**Anshuman Dubey** — [github.com/Anshuman7080](https://github.com/Anshuman7080)
